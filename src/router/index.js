@@ -1,4 +1,5 @@
 import AppLayout from '@/layout/AppLayout.vue';
+import { useAuthStore } from '@/stores/useAuthStore'; // adjust path if different
 import { createRouter, createWebHistory } from 'vue-router';
 
 const router = createRouter({
@@ -135,4 +136,19 @@ const router = createRouter({
     ]
 });
 
+router.beforeEach((to, from, next) => {
+    const authStore = useAuthStore();
+    authStore.fetchCurrentUser(); // to update state on reload
+
+    const publicPages = ['/auth/login', '/auth/access', '/auth/error', '/landing'];
+    const authRequired = !publicPages.includes(to.path);
+
+    const isLoggedIn = !!authStore.user;
+
+    if (authRequired && !isLoggedIn) {
+        return next('/auth/login');
+    }
+
+    next();
+});
 export default router;

@@ -1,10 +1,21 @@
 <script setup>
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
+import { useAuthStore } from '@/stores/useAuthStore'; // ✅ Import your Pinia store
 import { ref } from 'vue';
+import { useRouter } from 'vue-router'; // ✅ Router to navigate on success
 
 const email = ref('');
 const password = ref('');
 const checked = ref(false);
+const router = useRouter();
+const authStore = useAuthStore();
+// ✅ Handle login
+const handleLogin = async () => {
+    await authStore.login(email.value, password.value);
+    if (authStore.user) {
+        router.push('/'); // Redirect only if login was successful
+    }
+};
 </script>
 
 <template>
@@ -49,7 +60,8 @@ const checked = ref(false);
                             </div>
                             <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>
                         </div>
-                        <Button label="Sign In" class="w-full" as="router-link" to="/"></Button>
+                        <!-- <Button label="Sign In" class="w-full" as="router-link" to="/"></Button> -->
+                        <Button label="Sign In" class="w-full" @click="handleLogin" :loading="authStore.loading" />
                     </div>
                 </div>
             </div>
