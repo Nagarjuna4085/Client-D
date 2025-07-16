@@ -45,6 +45,7 @@ export const useAuthStore = defineStore('auth', {
 
                 await user.signUp();
                 this.user = user;
+                console.log('user sign up done', this.user);
 
                 // Redirect after signup
                 // const router = useRouter();

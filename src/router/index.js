@@ -124,6 +124,11 @@ const router = createRouter({
             component: () => import('@/views/pages/auth/Login.vue')
         },
         {
+            path: '/auth/signup',
+            name: 'signup',
+            component: () => import('@/views/pages/auth/Signup.vue')
+        },
+        {
             path: '/auth/access',
             name: 'accessDenied',
             component: () => import('@/views/pages/auth/Access.vue')
@@ -140,7 +145,7 @@ router.beforeEach((to, from, next) => {
     const authStore = useAuthStore();
     authStore.fetchCurrentUser(); // to update state on reload
 
-    const publicPages = ['/auth/login', '/auth/access', '/auth/error', '/landing'];
+    const publicPages = ['/auth/login', '/auth/access', '/auth/error', '/landing', '/auth/signup'];
     const authRequired = !publicPages.includes(to.path);
 
     const isLoggedIn = !!authStore.user;

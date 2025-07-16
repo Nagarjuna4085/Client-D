@@ -1,21 +1,62 @@
 <script setup>
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
 import { useAuthStore } from '@/stores/useAuthStore'; // ✅ Import your Pinia store
-import { ref } from 'vue';
+import { usePropertyStore } from '@/stores/usePropertyStore';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router'; // ✅ Router to navigate on success
 
-const email = ref('');
+const username = ref('');
 const password = ref('');
 const checked = ref(false);
 const router = useRouter();
 const authStore = useAuthStore();
-// ✅ Handle login
-const handleLogin = async () => {
-    if (!email.value || !password.value) {
+const propertyStore = usePropertyStore();
+
+const selectedCountry = ref();
+const countries = ref([
+    { name: 'Australia', code: 'AU' },
+    { name: 'Brazil', code: 'BR' },
+    { name: 'China', code: 'CN' },
+    { name: 'Egypt', code: 'EG' },
+    { name: 'France', code: 'FR' },
+    { name: 'Germany', code: 'DE' },
+    { name: 'India', code: 'IN' },
+    { name: 'Japan', code: 'JP' },
+    { name: 'Spain', code: 'ES' },
+    { name: 'United States', code: 'US' }
+]);
+
+onMounted(async () => {
+    await propertyStore.fetchProperties();
+
+    console.log('data', propertyStore.properties);
+
+    if (Array.isArray(propertyStore.properties)) {
+        countries.value = propertyStore.properties.map((p) => ({
+            name: p.get('name'),
+            code: 'ES'
+        }));
+    }
+});
+
+// ✅ Handle signup
+const handSignUp = async () => {
+    if (!username.value || !password.value || !selectedCountry.value) {
         alert('Please fill all required fields');
         return;
     }
-    await authStore.login(email.value, password.value);
+
+    const selectedPropertyName = selectedCountry.value.name;
+
+    // Find the matching property from store
+    const selectedProperty = propertyStore.properties.find((p) => p.get('name') === selectedPropertyName);
+    if (!selectedProperty) {
+        alert('Selected property not found');
+        return;
+    }
+
+    await authStore.signup(username.value, password.value, selectedProperty.id);
+
     if (authStore.user) {
         router.push('/'); // ✅ or whatever your next page is
     }
@@ -47,27 +88,48 @@ const handleLogin = async () => {
                             </g>
                         </svg>
                         <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Welcome to PrimeLand!</div>
-                        <span class="text-muted-color font-medium">Sign in to continue</span>
+                        <span class="text-muted-color font-medium">Sign up to continue</span>
                     </div>
 
                     <div>
-                        <label for="email1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
-                        <InputText id="email1" type="text" placeholder="Email address" class="w-full md:w-[30rem] mb-8" v-model="email" />
+                        <label for="username1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">username</label>
+                        <InputText id="username1" type="text" placeholder="username address" class="w-full md:w-[30rem] mb-8" v-model="username" />
 
                         <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
                         <Password id="password1" v-model="password" placeholder="Password" :toggleMask="true" class="mb-4" fluid :feedback="false"></Password>
+
+                        <label for="Property" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Select Property</label>
+
+                        <div class="card select-property flex justify-content-center">
+                            <Dropdown v-model="selectedCountry" :options="countries" optionLabel="name" placeholder="Select a Country" class="w-full md:w-14rem">
+                                <template #value="slotProps">
+                                    <div v-if="slotProps.value" class="flex align-items-center">
+                                        <img :alt="slotProps.value.label" src="https://primefaces.org/cdn/primevue/images/flag/flag_placeholder.png" :class="`mr-2 flag flag-${slotProps.value.code.toLowerCase()}`" style="width: 18px" />
+                                        <div>{{ slotProps.value.name }}</div>
+                                    </div>
+                                    <span v-else>
+                                        {{ slotProps.placeholder }}
+                                    </span>
+                                </template>
+                                <template #option="slotProps">
+                                    <div class="flex align-items-center">
+                                        <img :alt="slotProps.option.label" src="https://primefaces.org/cdn/primevue/images/flag/flag_placeholder.png" :class="`mr-2 flag flag-${slotProps.option.code.toLowerCase()}`" style="width: 18px" />
+                                        <div>{{ slotProps.option.name }}</div>
+                                    </div>
+                                </template>
+                            </Dropdown>
+                        </div>
 
                         <div class="flex items-center justify-between mt-2 mb-8 gap-8">
                             <div class="flex items-center">
                                 <!-- <Checkbox v-model="checked" id="rememberme1" binary class="mr-2"></Checkbox>
                                 <label for="rememberme1">Remember me</label> -->
-                                <Button label="Click here for sign up" class="text-warn" as="router-link" to="/auth/signup"></Button>
                             </div>
-                            <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>
+                            <Button label="click here for sign in" class="" as="router-link" to="/auth/login"></Button>
                         </div>
 
                         <!-- <Button label="Sign In" class="w-full" as="router-link" to="/"></Button> -->
-                        <Button label="Sign In" class="w-full" @click="handleLogin" :loading="authStore.loading" />
+                        <Button label="Sign Up" class="w-full" @click="handSignUp()" :loading="authStore.loading" />
                     </div>
                 </div>
             </div>
