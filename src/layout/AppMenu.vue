@@ -12,6 +12,7 @@ const model = ref([
         label: 'UI Components',
         items: [
             { label: 'Form Layout', icon: 'pi pi-fw pi-id-card', to: '/uikit/formlayout' },
+            { label: 'Employees', icon: 'pi pi-fw pi-id-card', to: '/timelog/employees' },
             { label: 'Input', icon: 'pi pi-fw pi-check-square', to: '/uikit/input' },
             { label: 'Button', icon: 'pi pi-fw pi-mobile', to: '/uikit/button', class: 'rotated-icon' },
             { label: 'Log Time', icon: 'pi pi-fw pi-stopwatch', to: '/uikit/table' },
