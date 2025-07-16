@@ -34,7 +34,8 @@ onMounted(async () => {
     if (Array.isArray(propertyStore.properties)) {
         countries.value = propertyStore.properties.map((p) => ({
             name: p.get('name'),
-            code: 'ES'
+            code: 'ES',
+            id: p.get('code')
         }));
     }
 });
@@ -54,8 +55,9 @@ const handSignUp = async () => {
         alert('Selected property not found');
         return;
     }
+    console.log('country code', selectedCountry.value.id);
 
-    await authStore.signup(username.value, password.value, selectedProperty.id);
+    await authStore.signup(username.value, password.value, selectedCountry.value.id);
 
     if (authStore.user) {
         router.push('/'); // ✅ or whatever your next page is
