@@ -87,11 +87,17 @@ export const useAuthStore = defineStore('auth', {
         },
 
         async logout() {
-            const Parse = await getParse();
-            await Parse.User.logOut();
-            this.user = null;
+            this.loading = true;
+            try {
+                const Parse = await getParse();
+                await Parse.User.logOut();
+                this.user = null;
+            } catch (err) {
+                this.error = err.message;
+            } finally {
+                this.loading = false;
+            }
         },
-
         async fetchCurrentUser() {
             const Parse = await getParse();
             this.user = Parse.User.current();

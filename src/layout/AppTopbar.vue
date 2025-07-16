@@ -1,8 +1,25 @@
 <script setup>
 import { useLayout } from '@/layout/composables/layout';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import AppConfigurator from './AppConfigurator.vue';
-
 const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
+const router = useRouter();
+const op = ref();
+const logout = async () => {
+    try {
+        await authStore.logout();
+        router.push('/auth/login');
+        toggle();
+    } catch (error) {
+        console.log(error);
+    }
+};
+const authStore = useAuthStore();
+const toggle = (event) => {
+    op.value.toggle(event);
+};
 </script>
 
 <template>
@@ -68,12 +85,37 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
                         <i class="pi pi-inbox"></i>
                         <span>Messages</span>
                     </button>
-                    <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-user"></i>
+                    <button @click="toggle" type="button" class="layout-topbar-action">
+                        <i class="pi pi-user text-primary"></i>
                         <span>Profile</span>
                     </button>
                 </div>
             </div>
         </div>
+
+        <Popover ref="op" placement="bottom">
+            <div class="flex flex-col gap-4 w-[25rem]">
+                <div>
+                    <span class="font-medium block mb-2">Team Member</span>
+                    <ul class="list-none p-0 m-0 flex flex-col gap-4">
+                        <li class="flex items-center gap-2">
+                            <img src="https://primefaces.org/cdn/primevue/images/avatar/amyelsner.png" style="width: 32px" />
+                            <div>
+                                <span class="font-medium">Amy Elsner</span>
+                                <div class="text-sm text-surface-500 dark:text-surface-400">
+                                    {{ authStore.userInfo.username }}
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 cursor-pointer ml-auto">
+                                <!-- <span>Owner</span> -->
+                                <!-- <i class="pi pi-power-off cursor-pointer text-primary" /> -->
+                                <Button :loading="authStore.loading" label="Logout" icon="pi pi-power-off" @click="logout" />
+                                <!-- <ProgressSpinner v-else style="width: 25px; height: 25px" strokeWidth="6" /> -->
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </Popover>
     </div>
 </template>
