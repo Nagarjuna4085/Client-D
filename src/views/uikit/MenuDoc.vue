@@ -1,514 +1,206 @@
 <script setup>
-import { ref } from 'vue';
+import { getCurrentCycle, parseLocalDate } from '@/jsutils/timesheetUtils';
+import { onBeforeMount, onMounted, reactive } from 'vue';
 
-const menu = ref(null);
-const contextMenu = ref(null);
-
-const nestedMenuitems = ref([
-    {
-        label: 'Customers',
-        icon: 'pi pi-fw pi-table',
-        items: [
-            {
-                label: 'New',
-                icon: 'pi pi-fw pi-user-plus',
-                items: [
-                    {
-                        label: 'Customer',
-                        icon: 'pi pi-fw pi-plus'
-                    },
-                    {
-                        label: 'Duplicate',
-                        icon: 'pi pi-fw pi-copy'
-                    }
-                ]
-            },
-            {
-                label: 'Edit',
-                icon: 'pi pi-fw pi-user-edit'
-            }
-        ]
-    },
-    {
-        label: 'Orders',
-        icon: 'pi pi-fw pi-shopping-cart',
-        items: [
-            {
-                label: 'View',
-                icon: 'pi pi-fw pi-list'
-            },
-            {
-                label: 'Search',
-                icon: 'pi pi-fw pi-search'
-            }
-        ]
-    },
-    {
-        label: 'Shipments',
-        icon: 'pi pi-fw pi-envelope',
-        items: [
-            {
-                label: 'Tracker',
-                icon: 'pi pi-fw pi-compass'
-            },
-            {
-                label: 'Map',
-                icon: 'pi pi-fw pi-map-marker'
-            },
-            {
-                label: 'Manage',
-                icon: 'pi pi-fw pi-pencil'
-            }
-        ]
-    },
-    {
-        label: 'Profile',
-        icon: 'pi pi-fw pi-user',
-        items: [
-            {
-                label: 'Settings',
-                icon: 'pi pi-fw pi-cog'
-            },
-            {
-                label: 'Billing',
-                icon: 'pi pi-fw pi-file'
-            }
-        ]
-    },
-    {
-        label: 'Quit',
-        icon: 'pi pi-fw pi-sign-out'
-    }
-]);
-const breadcrumbHome = ref({ icon: 'pi pi-home', to: '/' });
-const breadcrumbItems = ref([{ label: 'Computer' }, { label: 'Notebook' }, { label: 'Accessories' }, { label: 'Backpacks' }, { label: 'Item' }]);
-const tieredMenuItems = ref([
-    {
-        label: 'Customers',
-        icon: 'pi pi-fw pi-table',
-        items: [
-            {
-                label: 'New',
-                icon: 'pi pi-fw pi-user-plus',
-                items: [
-                    {
-                        label: 'Customer',
-                        icon: 'pi pi-fw pi-plus'
-                    },
-                    {
-                        label: 'Duplicate',
-                        icon: 'pi pi-fw pi-copy'
-                    }
-                ]
-            },
-            {
-                label: 'Edit',
-                icon: 'pi pi-fw pi-user-edit'
-            }
-        ]
-    },
-    {
-        label: 'Orders',
-        icon: 'pi pi-fw pi-shopping-cart',
-        items: [
-            {
-                label: 'View',
-                icon: 'pi pi-fw pi-list'
-            },
-            {
-                label: 'Search',
-                icon: 'pi pi-fw pi-search'
-            }
-        ]
-    },
-    {
-        label: 'Shipments',
-        icon: 'pi pi-fw pi-envelope',
-        items: [
-            {
-                label: 'Tracker',
-                icon: 'pi pi-fw pi-compass'
-            },
-            {
-                label: 'Map',
-                icon: 'pi pi-fw pi-map-marker'
-            },
-            {
-                label: 'Manage',
-                icon: 'pi pi-fw pi-pencil'
-            }
-        ]
-    },
-    {
-        label: 'Profile',
-        icon: 'pi pi-fw pi-user',
-        items: [
-            {
-                label: 'Settings',
-                icon: 'pi pi-fw pi-cog'
-            },
-            {
-                label: 'Billing',
-                icon: 'pi pi-fw pi-file'
-            }
-        ]
-    },
-    {
-        separator: true
-    },
-    {
-        label: 'Quit',
-        icon: 'pi pi-fw pi-sign-out'
-    }
-]);
-const overlayMenuItems = ref([
-    {
-        label: 'Save',
-        icon: 'pi pi-save'
-    },
-    {
-        label: 'Update',
-        icon: 'pi pi-refresh'
-    },
-    {
-        label: 'Delete',
-        icon: 'pi pi-trash'
-    },
-    {
-        separator: true
-    },
-    {
-        label: 'Home',
-        icon: 'pi pi-home'
-    }
-]);
-const menuitems = ref([
-    {
-        label: 'Customers',
-        items: [
-            {
-                label: 'New',
-                icon: 'pi pi-fw pi-plus'
-            },
-            {
-                label: 'Edit',
-                icon: 'pi pi-fw pi-user-edit'
-            }
-        ]
-    },
-    {
-        label: 'Orders',
-        items: [
-            {
-                label: 'View',
-                icon: 'pi pi-fw pi-list'
-            },
-            {
-                label: 'Search',
-                icon: 'pi pi-fw pi-search'
-            }
-        ]
-    }
-]);
-const contextMenuItems = ref([
-    {
-        label: 'Save',
-        icon: 'pi pi-save'
-    },
-    {
-        label: 'Update',
-        icon: 'pi pi-refresh'
-    },
-    {
-        label: 'Delete',
-        icon: 'pi pi-trash'
-    },
-    {
-        separator: true
-    },
-    {
-        label: 'Options',
-        icon: 'pi pi-cog'
-    }
-]);
-const megamenuItems = ref([
-    {
-        label: 'Fashion',
-        icon: 'pi pi-fw pi-tag',
-        items: [
-            [
-                {
-                    label: 'Woman',
-                    items: [{ label: 'Woman Item' }, { label: 'Woman Item' }, { label: 'Woman Item' }]
-                },
-                {
-                    label: 'Men',
-                    items: [{ label: 'Men Item' }, { label: 'Men Item' }, { label: 'Men Item' }]
-                }
-            ],
-            [
-                {
-                    label: 'Kids',
-                    items: [{ label: 'Kids Item' }, { label: 'Kids Item' }]
-                },
-                {
-                    label: 'Luggage',
-                    items: [{ label: 'Luggage Item' }, { label: 'Luggage Item' }, { label: 'Luggage Item' }]
-                }
-            ]
-        ]
-    },
-    {
-        label: 'Electronics',
-        icon: 'pi pi-fw pi-desktop',
-        items: [
-            [
-                {
-                    label: 'Computer',
-                    items: [{ label: 'Computer Item' }, { label: 'Computer Item' }]
-                },
-                {
-                    label: 'Camcorder',
-                    items: [{ label: 'Camcorder Item' }, { label: 'Camcorder Item' }, { label: 'Camcorder Item' }]
-                }
-            ],
-            [
-                {
-                    label: 'TV',
-                    items: [{ label: 'TV Item' }, { label: 'TV Item' }]
-                },
-                {
-                    label: 'Audio',
-                    items: [{ label: 'Audio Item' }, { label: 'Audio Item' }, { label: 'Audio Item' }]
-                }
-            ],
-            [
-                {
-                    label: 'Sports.7',
-                    items: [{ label: 'Sports.7.1' }, { label: 'Sports.7.2' }]
-                }
-            ]
-        ]
-    },
-    {
-        label: 'Furniture',
-        icon: 'pi pi-fw pi-image',
-        items: [
-            [
-                {
-                    label: 'Living Room',
-                    items: [{ label: 'Living Room Item' }, { label: 'Living Room Item' }]
-                },
-                {
-                    label: 'Kitchen',
-                    items: [{ label: 'Kitchen Item' }, { label: 'Kitchen Item' }, { label: 'Kitchen Item' }]
-                }
-            ],
-            [
-                {
-                    label: 'Bedroom',
-                    items: [{ label: 'Bedroom Item' }, { label: 'Bedroom Item' }]
-                },
-                {
-                    label: 'Outdoor',
-                    items: [{ label: 'Outdoor Item' }, { label: 'Outdoor Item' }, { label: 'Outdoor Item' }]
-                }
-            ]
-        ]
-    },
-    {
-        label: 'Sports',
-        icon: 'pi pi-fw pi-star',
-        items: [
-            [
-                {
-                    label: 'Basketball',
-                    items: [{ label: 'Basketball Item' }, { label: 'Basketball Item' }]
-                },
-                {
-                    label: 'Football',
-                    items: [{ label: 'Football Item' }, { label: 'Football Item' }, { label: 'Football Item' }]
-                }
-            ],
-            [
-                {
-                    label: 'Tennis',
-                    items: [{ label: 'Tennis Item' }, { label: 'Tennis Item' }]
-                }
-            ]
-        ]
-    }
-]);
-const panelMenuitems = ref([
-    {
-        label: 'Customers',
-        icon: 'pi pi-fw pi-table',
-        items: [
-            {
-                label: 'New',
-                icon: 'pi pi-fw pi-user-plus',
-                items: [
-                    {
-                        label: 'Customer',
-                        icon: 'pi pi-fw pi-plus'
-                    },
-                    {
-                        label: 'Duplicate',
-                        icon: 'pi pi-fw pi-copy'
-                    }
-                ]
-            },
-            {
-                label: 'Edit',
-                icon: 'pi pi-fw pi-user-edit'
-            }
-        ]
-    },
-    {
-        label: 'Orders',
-        icon: 'pi pi-fw pi-shopping-cart',
-        items: [
-            {
-                label: 'View',
-                icon: 'pi pi-fw pi-list'
-            },
-            {
-                label: 'Search',
-                icon: 'pi pi-fw pi-search'
-            }
-        ]
-    },
-    {
-        label: 'Shipments',
-        icon: 'pi pi-fw pi-envelope',
-        items: [
-            {
-                label: 'Tracker',
-                icon: 'pi pi-fw pi-compass'
-            },
-            {
-                label: 'Map',
-                icon: 'pi pi-fw pi-map-marker'
-            },
-            {
-                label: 'Manage',
-                icon: 'pi pi-fw pi-pencil'
-            }
-        ]
-    },
-    {
-        label: 'Profile',
-        icon: 'pi pi-fw pi-user',
-        items: [
-            {
-                label: 'Settings',
-                icon: 'pi pi-fw pi-cog'
-            },
-            {
-                label: 'Billing',
-                icon: 'pi pi-fw pi-file'
-            }
-        ]
-    }
-]);
-
-function toggleMenu(event) {
-    menu.value.toggle(event);
+const MS_IN_A_DAY = 86400000;
+// 1. Get start of current cycle (based on today)
+const { start: cycleStartDate } = getCurrentCycle();
+function formatDateLocal(date) {
+    return date.toLocaleDateString('en-CA'); // 'YYYY-MM-DD' in local time
 }
 
-function onContextRightClick(event) {
-    contextMenu.value.show(event);
+function generateInitialEntries(start, days = 14) {
+    const entries = [];
+    for (let i = 0; i < days; i++) {
+        const date = new Date(start);
+        date.setDate(start.getDate() + i);
+        console.log('formatdate', formatDateLocal(date));
+        entries.push({
+            id: 1000 + i,
+            inTime: null,
+            outTime: null,
+            date: formatDateLocal(date), // store local YYYY-MM-DD string here
+            name: `Entry 1`,
+            icon: 'pi pi-calendar'
+        });
+    }
+    return entries;
 }
+
+const timeEntries = reactive({
+    data: generateInitialEntries(cycleStartDate),
+    uniqId: 1024
+});
+
+onBeforeMount(() => {});
+onMounted(() => {});
+const calculateDailyHours = (date) => {
+    const entries = timeEntries.data.filter((entry) => entry.date === date && entry.inTime && entry.outTime);
+
+    let totalMilliseconds = 0;
+
+    entries.forEach((entry) => {
+        const inTime = new Date(entry.inTime);
+        const outTime = new Date(entry.outTime);
+
+        const diffMilliseconds = outTime - inTime;
+        if (diffMilliseconds > 0) {
+            totalMilliseconds += diffMilliseconds;
+        }
+    });
+
+    const totalMinutes = Math.floor(totalMilliseconds / (1000 * 60));
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+};
+
+const calculateWeeklyHours = () => {
+    let totalMilliseconds = 0;
+
+    timeEntries.data.forEach((entry) => {
+        if (entry.inTime && entry.outTime) {
+            const inTime = new Date(entry.inTime);
+            const outTime = new Date(entry.outTime);
+
+            const diffMilliseconds = outTime - inTime;
+            if (diffMilliseconds > 0) {
+                totalMilliseconds += diffMilliseconds;
+            }
+        }
+    });
+
+    const totalMinutes = Math.floor(totalMilliseconds / (1000 * 60));
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+};
+
+const sortCustomersByDate = () => {
+    timeEntries.data.sort((a, b) => new Date(a.date) - new Date(b.date));
+};
+
+const disabledIds = [1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010, 1011, 1012, 1013, 1014];
+
+const deleteEntry = (id) => {
+    console.log('id', id);
+    const index = timeEntries.data.findIndex((customer) => customer.id === id);
+    console.log('index', index);
+    if (index !== -1) {
+        timeEntries.data.splice(index, 1);
+    }
+};
+const clearAllTimes = () => {
+    timeEntries.data.forEach((entry) => {
+        entry.inTime = null;
+        entry.outTime = null;
+    });
+};
+
+const addNewEntry = (date, id) => {
+    timeEntries.uniqId = id;
+    const totalEntries = timeEntries.data.filter((entry) => entry.date === date).length;
+
+    timeEntries.data.push({
+        id: id,
+        inTime: null,
+        outTime: null,
+        name: `Entry ${totalEntries + 1}`,
+        date: date,
+        icon: 'pi pi-calendar'
+    });
+
+    sortCustomersByDate();
+};
 </script>
 
 <template>
     <div class="card">
-        <div class="font-semibold text-xl mb-4">Menubar</div>
-        <Menubar :model="nestedMenuitems">
-            <template #end>
-                <IconField iconPosition="left">
-                    <InputIcon class="pi pi-search" />
-                    <InputText type="text" placeholder="Search" />
-                </IconField>
+        <!-- <div class="font-semibold text-xl mb-4 text-primary">Weekly Time Log</div> -->
+        <div class="flex justify-between items-center mb-4">
+            <div class="font-bold text-4xl text-primary">Weekly Time Log</div>
+            <Button label="Clear All Times" icon="pi pi-times" @click="clearAllTimes" />
+        </div>
+
+        <DataTable :value="timeEntries.data" rowGroupMode="subheader" groupRowsBy="date" :sortOrder="1" scrollable scrollHeight="450px" tableStyle="min-width: 50rem">
+            <template #groupheader="slotProps">
+                <div class="flex items-center gap-3">
+                    <i :class="[slotProps.data.icon, 'text-primary']" style="font-size: 2rem"></i>
+                    <span style="font-size: 1.5rem; font-weight: 600">
+                        {{ parseLocalDate(slotProps.data.date).toDateString() }}
+                    </span>
+                </div>
             </template>
-        </Menubar>
-    </div>
 
-    <div class="card">
-        <div class="font-semibold text-xl mb-4">Breadcrumb</div>
-        <Breadcrumb :home="breadcrumbHome" :model="breadcrumbItems" />
-    </div>
+            <!-- <Column field="representative.name" header=""></Column> -->
+            <Column field="name" header="" style="min-width: 100px" headerClass="medium-header" />
+            <Column field="" header="" style="min-width: 100px">
+                <template #body="slotProps">
+                    <div class="flex items-center gap-2">
+                        <FloatLabel>
+                            <Calendar v-model="slotProps.data.inTime" showIcon hourFormat="12" iconDisplay="input" timeOnly :inputId="`inTime-${slotProps.data.id}`" />
+                            <label :for="`inTime-${slotProps.data.id}`">In Time</label>
+                        </FloatLabel>
+                    </div>
+                </template>
+            </Column>
+            <Column field="" header="" style="min-width: 100px">
+                <template #body="slotProps">
+                    <div class="flex items-center gap-2">
+                        <FloatLabel>
+                            <Calendar v-model="slotProps.data.outTime" showIcon iconDisplay="input" timeOnly hourFormat="12" inputId="outTime-{{ slotProps.data.id }}" />
+                            <label :for="`outTime-${slotProps.data.id}`">Out Time</label>
+                        </FloatLabel>
+                    </div>
+                </template>
+            </Column>
+            <Column field="" header="" style="min-width: 100px">
+                <template #body="slotProps">
+                    <div class="flex items-center">
+                        <Button label="Delete Entry" :disabled="disabledIds.includes(slotProps.data.id)" @click="deleteEntry(slotProps.data.id)" icon="pi pi-trash" text raised />
+                    </div>
+                </template>
+            </Column>
+            <template #groupfooter="slotProps">
+                <div class="flex justify-between items-center w-full col-span-2">
+                    <div>
+                        <Button size="small" label="New Entry" icon="pi pi-plus" @click="addNewEntry(slotProps.data.date, timeEntries.uniqId + 1)" />
+                    </div>
+                    <div class="flex justify-end font-semibold text-primary" style="font-size: 1.2rem">Daily Hours: {{ calculateDailyHours(slotProps.data.date) }}</div>
+                </div>
+            </template>
 
-    <div class="flex flex-col md:flex-row gap-8">
-        <div class="md:w-1/2">
-            <div class="card">
-                <div class="font-semibold text-xl mb-4">Steps</div>
-                <Stepper value="1">
-                    <StepList>
-                        <Step value="1">Header I</Step>
-                        <Step value="2">Header II</Step>
-                        <Step value="3">Header III</Step>
-                    </StepList>
-                </Stepper>
-            </div>
-        </div>
-        <div class="md:w-1/2">
-            <div class="card">
-                <div class="font-semibold text-xl mb-4">TabMenu</div>
-                <Tabs value="0">
-                    <TabList>
-                        <Tab value="0">Header I</Tab>
-                        <Tab value="1">Header II</Tab>
-                        <Tab value="2">Header III</Tab>
-                    </TabList>
-                </Tabs>
-            </div>
-        </div>
-    </div>
-
-    <div class="flex flex-col md:flex-row gap-8 mt-6">
-        <div class="md:w-1/3">
-            <div class="card">
-                <div class="font-semibold text-xl mb-4">Tiered Menu</div>
-                <TieredMenu :model="tieredMenuItems" />
-            </div>
-        </div>
-        <div class="md:w-1/3">
-            <div class="card">
-                <div class="font-semibold text-xl mb-4">Plain Menu</div>
-                <Menu :model="menuitems" />
-            </div>
-        </div>
-        <div class="md:w-1/3">
-            <div class="card">
-                <div class="font-semibold text-xl mb-4">Overlay Menu</div>
-                <Menu ref="menu" :model="overlayMenuItems" :popup="true" />
-                <Button type="button" label="Options" icon="pi pi-angle-down" @click="toggleMenu" style="width: auto" />
-            </div>
-
-            <div class="card" @contextmenu="onContextRightClick">
-                <div class="font-semibold text-xl mb-4">Context Menu</div>
-                Right click to display.
-                <ContextMenu ref="contextMenu" :model="contextMenuItems" />
-            </div>
-        </div>
-    </div>
-
-    <div class="flex flex-col md:flex-row gap-8 mt-8">
-        <div class="md:w-1/2">
-            <div class="card">
-                <div class="font-semibold text-xl mb-4">MegaMenu | Horizontal</div>
-                <MegaMenu :model="megamenuItems" />
-
-                <div class="font-semibold text-xl mb-4 mt-8">MegaMenu | Vertical</div>
-                <MegaMenu :model="megamenuItems" orientation="vertical" />
-            </div>
-        </div>
-        <div class="md:w-1/2">
-            <div class="card">
-                <div class="font-semibold text-xl mb-4">PanelMenu</div>
-                <PanelMenu :model="panelMenuitems" />
-            </div>
-        </div>
+            <ColumnGroup type="footer">
+                <Row>
+                    <Column :colspan="5" :footer="`Weekly Hours: ${calculateWeeklyHours()}`" footerStyle="text-align: right; font-weight: bold; font-size: 1.5rem;" footerClass="weekly-footer" />
+                </Row>
+            </ColumnGroup>
+        </DataTable>
     </div>
 </template>
+
+<style scoped lang="scss">
+:deep(.p-datatable-frozen-tbody) {
+    font-weight: bold;
+}
+
+:deep(.p-datatable-scrollable .p-frozen-column) {
+    font-weight: bold;
+}
+
+:deep(.p-datatable tfoot tr td.weekly-footer) {
+    margin-top: 1rem; /* might not affect tables, so use padding below */
+    // padding-top: 1rem;
+    font-weight: bold;
+    color: #28a745; /* Bootstrap green or change to your preferred shade */
+    // background-color: #f0fdf4; /* light green background (optional) */
+    border-top: 2px solid #d1e7dd; /* subtle top border for separation (optional) */
+    text-align: right;
+}
+.medium-header {
+    font-size: 1.2rem; /* medium size */
+    font-weight: 600; /* semi-bold */
+}
+</style>

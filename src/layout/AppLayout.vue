@@ -69,3 +69,12 @@ function isOutsideClicked(event) {
     </div>
     <Toast />
 </template>
+<style>
+.layout-main-container app-footer {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    z-index: 10;
+    width: 100%;
+}
+</style>
