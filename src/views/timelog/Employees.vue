@@ -1,11 +1,44 @@
 <script setup>
-import { ProductService } from '@/service/ProductService';
+import { usePropertyStore } from '@/stores/usePropertyStore';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
+const propertyStore = usePropertyStore();
+onMounted(async () => {
+    products.value = [
+        {
+            id: 'e1',
+            firstName: 'John',
+            lastName: 'Doe',
+            phoneNumber: '1234567890',
+            position: 'Manager',
+            gender: { label: 'MALE', value: 'male' },
+            payType: { label: 'Hourly', value: 'hourly' },
+            payRate: 25.5,
+            property: { label: 'INSTOCK', value: 'instock' }
+        },
+        {
+            id: 'e2',
+            firstName: 'Jane',
+            lastName: 'Smith',
+            phoneNumber: '9876543210',
+            position: 'Receptionist',
+            gender: { label: 'FEMALE', value: 'female' },
+            payType: { label: 'Daily', value: 'daily' },
+            payRate: 100,
+            property: { label: 'LOWSTOCK', value: 'lowstock' }
+        }
+    ];
+    await propertyStore.fetchProperties();
 
-onMounted(() => {
-    ProductService.getProducts().then((data) => (products.value = data));
+    console.log('data', propertyStore.properties);
+
+    if (Array.isArray(propertyStore.properties)) {
+        properties.value = propertyStore.properties.map((p) => ({
+            label: p.get('name'),
+            value: p.get('code')
+        }));
+    }
 });
 
 const toast = useToast();
@@ -20,10 +53,19 @@ const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
 const submitted = ref(false);
-const statuses = ref([
+const properties = ref([
     { label: 'INSTOCK', value: 'instock' },
     { label: 'LOWSTOCK', value: 'lowstock' },
     { label: 'OUTOFSTOCK', value: 'outofstock' }
+]);
+const paytypes = ref([
+    { label: 'Hourly', value: 'houtly' },
+    { label: 'Daily', value: 'Daily' },
+    { label: 'Monthly', value: 'monthly' }
+]);
+const gendertypes = ref([
+    { label: 'MALE', value: 'male' },
+    { label: 'FEMALE', value: 'female' }
 ]);
 
 const formatCurrency = (value) => {
@@ -40,18 +82,16 @@ const hideDialog = () => {
     submitted.value = false;
 };
 const saveProduct = () => {
+    console.log(product.value);
     submitted.value = true;
 
-    if (product?.value.name?.trim()) {
+    if (product?.value.firstName?.trim()) {
         if (product.value.id) {
-            product.value.inventoryStatus = product.value.inventoryStatus.value ? product.value.inventoryStatus.value : product.value.inventoryStatus;
             products.value[findIndexById(product.value.id)] = product.value;
             toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 });
         } else {
             product.value.id = createId();
             product.value.code = createId();
-            product.value.image = 'product-placeholder.svg';
-            product.value.inventoryStatus = product.value.inventoryStatus ? product.value.inventoryStatus.value : 'INSTOCK';
             products.value.push(product.value);
             toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Created', life: 3000 });
         }
@@ -105,22 +145,6 @@ const deleteSelectedProducts = () => {
     selectedProducts.value = null;
     toast.add({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 });
 };
-
-const getStatusLabel = (status) => {
-    switch (status) {
-        case 'INSTOCK':
-            return 'success';
-
-        case 'LOWSTOCK':
-            return 'warn';
-
-        case 'OUTOFSTOCK':
-            return 'danger';
-
-        default:
-            return null;
-    }
-};
 </script>
 
 <template>
@@ -152,7 +176,7 @@ const getStatusLabel = (status) => {
             >
                 <template #header>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
-                        <h4 class="m-0">Manage Products</h4>
+                        <h4 class="m-0">Manage Employees</h4>
                         <IconField>
                             <InputIcon>
                                 <i class="pi pi-search" />
@@ -163,27 +187,15 @@ const getStatusLabel = (status) => {
                 </template>
 
                 <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
-                <Column field="code" header="Code" sortable style="min-width: 12rem"></Column>
-                <Column field="name" header="Name" sortable style="min-width: 16rem"></Column>
-                <Column header="Image">
+                <Column field="lastName" header="Id" sortable style="min-width: 12rem"></Column>
+                <Column field="firstName" header="Full Name" sortable style="min-width: 16rem"></Column>
+                <Column field="phoneNumber" header="Phone Number" sortable style="min-width: 16rem"></Column>
+                <Column field="position" header="Position" sortable style="min-width: 16rem"></Column>
+                <Column field="gender.label" header="Gender" sortable style="min-width: 16rem"></Column>
+                <Column field="payType.label" header="Pay Type" sortable style="min-width: 16rem"></Column>
+                <Column field="payRate" header="Pay Rate" sortable style="min-width: 8rem">
                     <template #body="slotProps">
-                        <img :src="`https://primefaces.org/cdn/primevue/images/product/${slotProps.data.image}`" :alt="slotProps.data.image" class="rounded" style="width: 64px" />
-                    </template>
-                </Column>
-                <Column field="price" header="Price" sortable style="min-width: 8rem">
-                    <template #body="slotProps">
-                        {{ formatCurrency(slotProps.data.price) }}
-                    </template>
-                </Column>
-                <Column field="category" header="Category" sortable style="min-width: 10rem"></Column>
-                <Column field="rating" header="Reviews" sortable style="min-width: 12rem">
-                    <template #body="slotProps">
-                        <Rating :modelValue="slotProps.data.rating" :readonly="true" />
-                    </template>
-                </Column>
-                <Column field="inventoryStatus" header="Status" sortable style="min-width: 12rem">
-                    <template #body="slotProps">
-                        <Tag :value="slotProps.data.inventoryStatus" :severity="getStatusLabel(slotProps.data.inventoryStatus)" />
+                        {{ formatCurrency(slotProps.data.payRate) }}
                     </template>
                 </Column>
                 <Column :exportable="false" style="min-width: 12rem">
@@ -199,49 +211,37 @@ const getStatusLabel = (status) => {
             <div class="flex flex-col gap-6">
                 <img v-if="product.image" :src="`https://primefaces.org/cdn/primevue/images/product/${product.image}`" :alt="product.image" class="block m-auto pb-4" />
                 <div>
-                    <label for="name" class="block font-bold mb-3">Name</label>
-                    <InputText id="name" v-model.trim="product.name" required="true" autofocus :invalid="submitted && !product.name" fluid />
-                    <small v-if="submitted && !product.name" class="text-red-500">Name is required.</small>
+                    <label for="First Name" class="block font-bold mb-3">First Name</label>
+                    <InputText id="firstname" v-model.trim="product.firstName" required="true" autofocus :invalid="submitted && !product.firstName" fluid />
+                    <small v-if="submitted && !product.firstName" class="text-red-500">first Name is required.</small>
                 </div>
                 <div>
-                    <label for="description" class="block font-bold mb-3">Description</label>
-                    <Textarea id="description" v-model="product.description" required="true" rows="3" cols="20" fluid />
+                    <label for="Last Name" class="block font-bold mb-3">Last Name</label>
+                    <InputText id="lastname" v-model.trim="product.lastName" required="true" autofocus :invalid="submitted && !product.lastName" fluid />
+                    <small v-if="submitted && !product.lastName" class="text-red-500">last Name is required.</small>
                 </div>
                 <div>
-                    <label for="inventoryStatus" class="block font-bold mb-3">Inventory Status</label>
-                    <Select id="inventoryStatus" v-model="product.inventoryStatus" :options="statuses" optionLabel="label" placeholder="Select a Status" fluid></Select>
+                    <label for="inventoryStatus" class="block font-bold mb-3">Gender</label>
+                    <Select id="inventoryStatus" v-model="product.gender" :options="gendertypes" optionLabel="label" placeholder="Select a gender" fluid></Select>
                 </div>
-
                 <div>
-                    <span class="block font-bold mb-4">Category</span>
-                    <div class="grid grid-cols-12 gap-4">
-                        <div class="flex items-center gap-2 col-span-6">
-                            <RadioButton id="category1" v-model="product.category" name="category" value="Accessories" />
-                            <label for="category1">Accessories</label>
-                        </div>
-                        <div class="flex items-center gap-2 col-span-6">
-                            <RadioButton id="category2" v-model="product.category" name="category" value="Clothing" />
-                            <label for="category2">Clothing</label>
-                        </div>
-                        <div class="flex items-center gap-2 col-span-6">
-                            <RadioButton id="category3" v-model="product.category" name="category" value="Electronics" />
-                            <label for="category3">Electronics</label>
-                        </div>
-                        <div class="flex items-center gap-2 col-span-6">
-                            <RadioButton id="category4" v-model="product.category" name="category" value="Fitness" />
-                            <label for="category4">Fitness</label>
-                        </div>
-                    </div>
+                    <label for="phoneNumber" class="block font-bold mb-3">Phone Number</label>
+                    <InputText id="phoneNumber" v-model.trim="product.phoneNumber" required="true" autofocus :invalid="submitted && !product.phoneNumber" fluid />
+                    <small v-if="submitted && !product.phoneNumber" class="text-red-500">phoneNumber is required.</small>
+                </div>
+                <div>
+                    <label for="inventoryStatus" class="block font-bold mb-3">Property </label>
+                    <Select id="inventoryStatus" v-model="product.property" :options="properties" optionLabel="label" placeholder="select a property" fluid></Select>
                 </div>
 
                 <div class="grid grid-cols-12 gap-4">
                     <div class="col-span-6">
-                        <label for="price" class="block font-bold mb-3">Price</label>
-                        <InputNumber id="price" v-model="product.price" mode="currency" currency="USD" locale="en-US" fluid />
+                        <label for="price" class="block font-bold mb-3">PayType</label>
+                        <Select id="payTypes" v-model="product.payType" :options="paytypes" optionLabel="label" placeholder="Select a paytype" fluid></Select>
                     </div>
                     <div class="col-span-6">
-                        <label for="quantity" class="block font-bold mb-3">Quantity</label>
-                        <InputNumber id="quantity" v-model="product.quantity" integeronly fluid />
+                        <label for="quantity" class="block font-bold mb-3">Pay Rate</label>
+                        <InputNumber id="price" v-model="product.payRate" mode="currency" currency="USD" locale="en-US" fluid />
                     </div>
                 </div>
             </div>
