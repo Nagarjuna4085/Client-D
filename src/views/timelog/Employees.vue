@@ -1,8 +1,11 @@
 <script setup>
+import { useAuthStore } from '@/stores/useAuthStore';
 import { usePropertyStore } from '@/stores/usePropertyStore';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
+const authStore = useAuthStore();
+console.log(authStore);
 const propertyStore = usePropertyStore();
 onMounted(async () => {
     products.value = [
@@ -58,6 +61,11 @@ const properties = ref([
     { label: 'LOWSTOCK', value: 'lowstock' },
     { label: 'OUTOFSTOCK', value: 'outofstock' }
 ]);
+const positions = ref([
+    { label: 'FrontDesk', value: 'frontdesk' },
+    { label: 'Housekeeper', value: 'housekeeper' },
+    { label: 'Laundery', value: 'Laundery' }
+]);
 const paytypes = ref([
     { label: 'Hourly', value: 'houtly' },
     { label: 'Daily', value: 'Daily' },
@@ -74,6 +82,11 @@ const formatCurrency = (value) => {
 };
 const openNew = () => {
     product.value = {};
+    product.value.property = {
+        label: authStore.propertyInfo.name,
+        value: authStore.propertyInfo.code
+    };
+    console.log(product.value);
     submitted.value = false;
     productDialog.value = true;
 };
@@ -101,6 +114,7 @@ const saveProduct = () => {
     }
 };
 const editProduct = (prod) => {
+    console.log(prod);
     product.value = { ...prod };
     productDialog.value = true;
 };
@@ -190,7 +204,7 @@ const deleteSelectedProducts = () => {
                 <Column field="lastName" header="Id" sortable style="min-width: 12rem"></Column>
                 <Column field="firstName" header="Full Name" sortable style="min-width: 16rem"></Column>
                 <Column field="phoneNumber" header="Phone Number" sortable style="min-width: 16rem"></Column>
-                <Column field="position" header="Position" sortable style="min-width: 16rem"></Column>
+                <Column field="position.label" header="Position" sortable style="min-width: 16rem"></Column>
                 <Column field="gender.label" header="Gender" sortable style="min-width: 16rem"></Column>
                 <Column field="payType.label" header="Pay Type" sortable style="min-width: 16rem"></Column>
                 <Column field="payRate" header="Pay Rate" sortable style="min-width: 8rem">
@@ -220,9 +234,15 @@ const deleteSelectedProducts = () => {
                     <InputText id="lastname" v-model.trim="product.lastName" required="true" autofocus :invalid="submitted && !product.lastName" fluid />
                     <small v-if="submitted && !product.lastName" class="text-red-500">last Name is required.</small>
                 </div>
+                <div class="mb-4">
+                    <label for="position" class="block font-bold mb-3">Position <span class="text-red-500">*</span></label>
+                    <Select id="position" v-model="product.position" :options="positions" optionLabel="label" placeholder="Select a position" :class="{ 'p-invalid': positionError }" fluid />
+                    <small v-if="positionError" class="text-red-500">Position is required.</small>
+                </div>
+
                 <div>
-                    <label for="inventoryStatus" class="block font-bold mb-3">Gender</label>
-                    <Select id="inventoryStatus" v-model="product.gender" :options="gendertypes" optionLabel="label" placeholder="Select a gender" fluid></Select>
+                    <label for="gender" class="block font-bold mb-3">Gender</label>
+                    <Select id="gender" v-model="product.gender" :options="gendertypes" optionLabel="label" placeholder="Select a gender" fluid></Select>
                 </div>
                 <div>
                     <label for="phoneNumber" class="block font-bold mb-3">Phone Number</label>
@@ -230,18 +250,27 @@ const deleteSelectedProducts = () => {
                     <small v-if="submitted && !product.phoneNumber" class="text-red-500">phoneNumber is required.</small>
                 </div>
                 <div>
-                    <label for="inventoryStatus" class="block font-bold mb-3">Property </label>
-                    <Select id="inventoryStatus" v-model="product.property" :options="properties" optionLabel="label" placeholder="select a property" fluid></Select>
+                    <label for="property" class="block font-bold mb-3">Property </label>
+                    <Select id="property" :disabled="true" v-model="product.property" :options="properties" optionLabel="label" placeholder="select a property" fluid></Select>
                 </div>
 
                 <div class="grid grid-cols-12 gap-4">
+                    <!-- Pay Type -->
                     <div class="col-span-6">
                         <label for="price" class="block font-bold mb-3">PayType</label>
-                        <Select id="payTypes" v-model="product.payType" :options="paytypes" optionLabel="label" placeholder="Select a paytype" fluid></Select>
+                        <div :class="{ 'p-invalid': submitted && !product.payType }">
+                            <Select id="payTypes" v-model="product.payType" :options="paytypes" optionLabel="label" placeholder="Select a paytype" fluid />
+                        </div>
+                        <small v-if="submitted && !product.payType" class="text-red-500">Pay type is required.</small>
                     </div>
+
+                    <!-- Pay Rate -->
                     <div class="col-span-6">
                         <label for="quantity" class="block font-bold mb-3">Pay Rate</label>
-                        <InputNumber id="price" v-model="product.payRate" mode="currency" currency="USD" locale="en-US" fluid />
+                        <div :class="{ 'p-invalid': submitted && !product.payRate }">
+                            <InputNumber id="price" v-model="product.payRate" mode="currency" currency="USD" locale="en-US" fluid />
+                        </div>
+                        <small v-if="submitted && !product.payRate" class="text-red-500">Pay rate is required.</small>
                     </div>
                 </div>
             </div>
