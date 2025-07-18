@@ -124,13 +124,16 @@ export const useEmployeeStore = defineStore('employee', () => {
     }
 
     async function deleteEmployee(id) {
-        try {
-            const Parse = await getParse();
+        const Parse = await getParse();
+        const query = new Parse.Query('Employee');
 
-            const query = new Parse.Query('Employee');
+        try {
             const emp = await query.get(id);
-            await emp.destroy();
-            employees.value = employees.value.filter((e) => e.id !== id);
+            if (emp) {
+                await emp.destroy();
+            } else {
+                throw new Error('Employee not found');
+            }
         } catch (err) {
             console.error('Error deleting employee:', err.message);
             throw err;

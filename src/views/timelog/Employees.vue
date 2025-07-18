@@ -174,11 +174,23 @@ const confirmDeleteProduct = (prod) => {
     product.value = prod;
     deleteProductDialog.value = true;
 };
-const deleteProduct = () => {
-    products.value = products.value.filter((val) => val.id !== product.value.id);
-    deleteProductDialog.value = false;
-    product.value = {};
-    toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Deleted', life: 3000 });
+const deleteProduct = async () => {
+    try {
+        // Call backend to delete employee
+        await employeeStore.deleteEmployee(product.value.id);
+
+        // Remove from local state
+        products.value = products.value.filter((val) => val.id !== product.value.id);
+
+        // UI updates
+        deleteProductDialog.value = false;
+        toast.add({ severity: 'success', summary: 'Successful', detail: 'Employee Deleted', life: 3000 });
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete employee.', life: 3000 });
+        console.error('Deletion error:', error.message);
+    } finally {
+        product.value = {}; // Reset form
+    }
 };
 
 const exportCSV = () => {
@@ -320,7 +332,7 @@ const deleteSelectedProducts = () => {
             <div class="flex items-center gap-4">
                 <i class="pi pi-exclamation-triangle !text-3xl" />
                 <span v-if="product"
-                    >Are you sure you want to delete <b>{{ product.name }}</b
+                    >Are you sure you want to delete <b>{{ product.firstName }}</b
                     >?</span
                 >
             </div>
