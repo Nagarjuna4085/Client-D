@@ -25,30 +25,22 @@ const authStore = useAuthStore();
 console.log(authStore);
 const propertyStore = usePropertyStore();
 onMounted(async () => {
-    products.value = [
-        {
-            id: 'e1',
-            firstName: 'John',
-            lastName: 'Doe',
-            phoneNumber: '1234567890',
-            position: 'Manager',
-            gender: { label: 'MALE', value: 'male' },
-            payType: { label: 'Hourly', value: 'hourly' },
-            payRate: 25.5,
-            property: { label: 'INSTOCK', value: 'instock' }
-        },
-        {
-            id: 'e2',
-            firstName: 'Jane',
-            lastName: 'Smith',
-            phoneNumber: '9876543210',
-            position: 'Receptionist',
-            gender: { label: 'FEMALE', value: 'female' },
-            payType: { label: 'Daily', value: 'daily' },
-            payRate: 100,
-            property: { label: 'LOWSTOCK', value: 'lowstock' }
-        }
-    ];
+    isLoading.value = true;
+
+    // products.value = [
+    //     {
+    //         id: 'e1',
+    //         firstName: 'John',
+    //         lastName: 'Doe',
+    //         phoneNumber: '1234567890',
+    //         position: 'Manager',
+    //         gender: { label: 'MALE', value: 'male' },
+    //         payType: { label: 'Hourly', value: 'hourly' },
+    //         payRate: 25.5,
+    //         property: { label: 'INSTOCK', value: 'instock' }
+    //     },
+
+    // ];
     await propertyStore.fetchProperties();
 
     console.log('data', propertyStore.properties);
@@ -60,23 +52,32 @@ onMounted(async () => {
         }));
     }
     // 2. Fetch employee data
-    await employeeStore.fetchEmployees();
+    try {
+        isLoading.value = true;
+        await employeeStore.fetchEmployees();
 
-    // 3. Map employee data to the products array
-    if (Array.isArray(employeeStore.employees)) {
-        products.value = employeeStore.employees.map((e) => ({
-            id: e.id,
-            firstName: e.get('firstName'),
-            lastName: e.get('lastName'),
-            phoneNumber: e.get('phoneNumber'),
-            position: e.get('position'),
-            gender: e.get('gender'),
-            payType: e.get('payType'),
-            payRate: e.get('payRate'),
-            property: e.get('property')
-        }));
+        // 3. Map employee data to the products array
+        if (Array.isArray(employeeStore.employees)) {
+            products.value = employeeStore.employees.map((e) => ({
+                id: e.id,
+                firstName: e.get('firstName'),
+                lastName: e.get('lastName'),
+                phoneNumber: e.get('phoneNumber'),
+                position: e.get('position'),
+                gender: e.get('gender'),
+                payType: e.get('payType'),
+                payRate: e.get('payRate'),
+                property: e.get('property')
+            }));
+        }
+    } catch (error) {
+        console.error('Error loading employees', err);
+    } finally {
+        isLoading.value = false;
     }
 });
+
+const isLoading = ref(true);
 
 const toast = useToast();
 const dt = ref();
@@ -213,6 +214,7 @@ const deleteSelectedProducts = () => {
                 ref="dt"
                 v-model:selection="selectedProducts"
                 :value="products"
+                :loading="isLoading"
                 dataKey="id"
                 :paginator="true"
                 :rows="10"
