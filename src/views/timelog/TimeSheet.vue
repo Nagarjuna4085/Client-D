@@ -2,6 +2,9 @@
 import { parseLocalDate, getCycleForDate } from '@/jsutils/timesheetUtils';
 import { onBeforeMount, onMounted, reactive, ref, watch } from 'vue';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useRoute } from 'vue-router';
+const route = useRoute();
+const timesheetId = route.params.id;
 const currentDate = ref(new Date());
 
 const authStore = useAuthStore();
@@ -39,6 +42,8 @@ const timeEntries = reactive({
 
 onBeforeMount(() => {});
 onMounted(() => {});
+console.log('Load timesheet for ID:', timesheetId);
+
 const calculateDailyHours = (date) => {
     const entries = timeEntries.data.filter((entry) => entry.date === date && entry.inTime && entry.outTime);
 

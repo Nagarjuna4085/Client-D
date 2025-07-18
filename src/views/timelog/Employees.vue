@@ -6,6 +6,9 @@ import { usePropertyStore } from '@/stores/usePropertyStore';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router'; // ✅ Router to navigate on success
+const router = useRouter();
+
 const employeeStore = useEmployeeStore();
 const saving = ref(false);
 const findIndexById = (id) => {
@@ -196,6 +199,9 @@ const deleteProduct = async () => {
 const exportCSV = () => {
     dt.value.exportCSV();
 };
+const fillTimeSheet = (id) => {
+    router.push({ name: 'timesheet', params: { id: id } });
+};
 const confirmDeleteSelected = () => {
     deleteProductsDialog.value = true;
 };
@@ -263,6 +269,7 @@ const deleteSelectedProducts = () => {
                     <template #body="slotProps">
                         <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editProduct(slotProps.data)" />
                         <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteProduct(slotProps.data)" />
+                        <Button icon="pi pi-book" outlined rounded severity="danger" @click="fillTimeSheet('1')" />
                     </template>
                 </Column>
             </DataTable>

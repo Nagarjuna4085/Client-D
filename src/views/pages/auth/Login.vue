@@ -17,7 +17,7 @@ const handleLogin = async () => {
     }
     await authStore.login(email.value, password.value);
     if (authStore.user) {
-        console.log('property name', authStore.propertyInfo.name);
+        // console.log('property name', authStore.propertyInfo.name);
         router.push('/'); // ✅ or whatever your next page is
     }
 };

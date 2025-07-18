@@ -29,7 +29,8 @@ export const useAuthStore = defineStore('auth', {
             return {
                 id: property.id,
                 name: property.get('name'),
-                code: property.get('code')
+                code: property.get('code'),
+                initialCycleStartDate: property.get('initialCycleStartDate')
                 // add more property fields if needed
             };
         }

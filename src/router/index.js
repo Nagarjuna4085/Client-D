@@ -20,6 +20,12 @@ const router = createRouter({
                     component: () => import('@/views/timelog/Employees.vue')
                 },
                 {
+                    path: '/timesheet/:id',
+                    name: 'timesheet',
+                    component: () => import('@/views/timelog/Timesheet.vue'),
+                    props: true
+                },
+                {
                     path: '/uikit/formlayout',
                     name: 'formlayout',
                     component: () => import('@/views/uikit/FormLayout.vue')
