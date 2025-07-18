@@ -124,7 +124,7 @@ const addNewEntry = (date, id) => {
             <Button label="Clear All Times" icon="pi pi-times" @click="clearAllTimes" />
         </div>
 
-        <DataTable :value="timeEntries.data" rowGroupMode="subheader" groupRowsBy="date" :sortOrder="1" scrollable scrollHeight="450px" tableStyle="min-width: 50rem">
+        <DataTable :value="timeEntries.data" rowGroupMode="subheader" groupRowsBy="date" :sortOrder="1" scrollable scrollHeight="calc(100vh - 8rem)" tableStyle="min-width: 50rem">
             <template #groupheader="slotProps">
                 <div class="flex items-center gap-3">
                     <i :class="[slotProps.data.icon, 'text-primary']" style="font-size: 2rem"></i>
