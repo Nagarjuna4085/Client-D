@@ -20,7 +20,6 @@ export const useEmployeeStore = defineStore('employee', () => {
 
     // ✅ Actions
     async function fetchEmployees() {
-        debugger;
         loading.value = true;
         try {
             const Parse = await getParse();

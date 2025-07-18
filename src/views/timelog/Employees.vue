@@ -8,6 +8,18 @@ import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 const employeeStore = useEmployeeStore();
 const saving = ref(false);
+const findIndexById = (id) => {
+    console.log('findIndexById-----id', id);
+    let index = -1;
+    for (let i = 0; i < products.value.length; i++) {
+        if (products.value[i].id === id) {
+            index = i;
+            break;
+        }
+    }
+
+    return index;
+};
 
 const authStore = useAuthStore();
 console.log(authStore);
@@ -132,12 +144,15 @@ const saveEmployee = async () => {
             console.log('id', product.value.id, product.value);
             // Update existing employee
             await employeeStore.updateEmployee(product.value.id, product.value);
+            products.value[findIndexById(product.value.id)] = product.value;
             toast.add({ severity: 'success', summary: 'Successful', detail: 'Employee Updated', life: 3000 });
         } else {
             // Create new employee
             // Assuming you have the logged-in user as pointer:
             const currentUser = Parse.User.current();
             await employeeStore.createEmployee(product.value, currentUser);
+            products.value.push(product.value);
+
             toast.add({ severity: 'success', summary: 'Successful', detail: 'Employee Created', life: 3000 });
         }
         productDialog.value = false;
@@ -164,25 +179,7 @@ const deleteProduct = () => {
     product.value = {};
     toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Deleted', life: 3000 });
 };
-const findIndexById = (id) => {
-    let index = -1;
-    for (let i = 0; i < products.value.length; i++) {
-        if (products.value[i].id === id) {
-            index = i;
-            break;
-        }
-    }
 
-    return index;
-};
-const createId = () => {
-    let id = '';
-    var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (var i = 0; i < 5; i++) {
-        id += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return id;
-};
 const exportCSV = () => {
     dt.value.exportCSV();
 };
