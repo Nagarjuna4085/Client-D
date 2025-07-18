@@ -1,9 +1,14 @@
 <script setup>
+import { getParse } from '@/parseConfig';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useEmployeeStore } from '@/stores/useEmployeeStore';
 import { usePropertyStore } from '@/stores/usePropertyStore';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
+const employeeStore = useEmployeeStore();
+const saving = ref(false);
+
 const authStore = useAuthStore();
 console.log(authStore);
 const propertyStore = usePropertyStore();
@@ -40,6 +45,23 @@ onMounted(async () => {
         properties.value = propertyStore.properties.map((p) => ({
             label: p.get('name'),
             value: p.get('code')
+        }));
+    }
+    // 2. Fetch employee data
+    await employeeStore.fetchEmployees();
+
+    // 3. Map employee data to the products array
+    if (Array.isArray(employeeStore.employees)) {
+        products.value = employeeStore.employees.map((e) => ({
+            id: e.id,
+            firstName: e.get('firstName'),
+            lastName: e.get('lastName'),
+            phoneNumber: e.get('phoneNumber'),
+            position: e.get('position'),
+            gender: e.get('gender'),
+            payType: e.get('payType'),
+            payRate: e.get('payRate'),
+            property: e.get('property')
         }));
     }
 });
@@ -94,23 +116,37 @@ const hideDialog = () => {
     productDialog.value = false;
     submitted.value = false;
 };
-const saveProduct = () => {
-    console.log(product.value);
+const saveEmployee = async () => {
     submitted.value = true;
+    const Parse = await getParse();
 
-    if (product?.value.firstName?.trim()) {
+    // Basic validation example:
+    if (!product.value.firstName?.trim()) {
+        toast.add({ severity: 'error', summary: 'Validation Error', detail: 'First name is required', life: 3000 });
+        return;
+    }
+
+    saving.value = true;
+    try {
         if (product.value.id) {
-            products.value[findIndexById(product.value.id)] = product.value;
-            toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 });
+            console.log('id', product.value.id, product.value);
+            // Update existing employee
+            await employeeStore.updateEmployee(product.value.id, product.value);
+            toast.add({ severity: 'success', summary: 'Successful', detail: 'Employee Updated', life: 3000 });
         } else {
-            product.value.id = createId();
-            product.value.code = createId();
-            products.value.push(product.value);
-            toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Created', life: 3000 });
+            // Create new employee
+            // Assuming you have the logged-in user as pointer:
+            const currentUser = Parse.User.current();
+            await employeeStore.createEmployee(product.value, currentUser);
+            toast.add({ severity: 'success', summary: 'Successful', detail: 'Employee Created', life: 3000 });
         }
-
         productDialog.value = false;
         product.value = {};
+        submitted.value = false;
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Error', detail: error.message || 'Failed to save employee', life: 3000 });
+    } finally {
+        saving.value = false;
     }
 };
 const editProduct = (prod) => {
@@ -277,7 +313,7 @@ const deleteSelectedProducts = () => {
 
             <template #footer>
                 <Button label="Cancel" icon="pi pi-times" text @click="hideDialog" />
-                <Button label="Save" icon="pi pi-check" @click="saveProduct" />
+                <Button label="Save" :disabled="saving" icon="pi pi-check" @click="saveEmployee" />
             </template>
         </Dialog>
 
