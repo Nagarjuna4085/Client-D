@@ -89,7 +89,7 @@ const handSignUp = async () => {
                                 />
                             </g>
                         </svg>
-                        <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Welcome to PrimeLand!</div>
+                        <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Welcome to BRD!</div>
                         <span class="text-muted-color font-medium">Sign up to continue</span>
                     </div>
 
@@ -126,7 +126,7 @@ const handSignUp = async () => {
                             <div class="flex items-center">
                                 <!-- <Checkbox v-model="checked" id="rememberme1" binary class="mr-2"></Checkbox>
                                 <label for="rememberme1">Remember me</label> -->
-                                <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary"><a href="/auth/login">Have an account? Log in</a></span>
+                                <span>Have an account ?<a href="/auth/login" class="font-medium no-underline ml-2 text-right cursor-pointer text-primary"> Log in</a></span>
                             </div>
 
                             <!-- <Button label="click here for sign in" class="" as="router-link" to="/auth/login"></Button> -->

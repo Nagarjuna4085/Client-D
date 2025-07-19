@@ -3,7 +3,6 @@ import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
 import { useAuthStore } from '@/stores/useAuthStore'; // ✅ Import your Pinia store
 import { ref } from 'vue';
 import { useRouter } from 'vue-router'; // ✅ Router to navigate on success
-
 const email = ref('robot');
 const password = ref('robot');
 const checked = ref(false);
@@ -47,7 +46,7 @@ const handleLogin = async () => {
                                 />
                             </g>
                         </svg>
-                        <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Welcome to PrimeLand!</div>
+                        <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Welcome to BRD!</div>
                         <span class="text-muted-color font-medium">Sign in to continue</span>
                     </div>
 
@@ -63,7 +62,7 @@ const handleLogin = async () => {
                                 <!-- <Checkbox v-model="checked" id="rememberme1" binary class="mr-2"></Checkbox>
                                 <label for="rememberme1">Remember me</label> -->
                                 <!-- <Button label="Click here for sign up" class="text-warn" as="router-link" to="/auth/signup"></Button> -->
-                                <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary"><a href="/auth/signup">Don’t have an account? Sign up</a></span>
+                                <span>Don’t have an account ?<a href="/auth/signup" class="font-medium no-underline ml-2 text-right cursor-pointer text-primary"> Sign up</a></span>
                             </div>
                             <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>
                         </div>
