@@ -43,14 +43,12 @@ export const useAuthStore = defineStore('auth', {
             try {
                 const Parse = await getParse();
                 const user = await Parse.User.logIn(username, password);
-
                 const query = new Parse.Query(Parse.User);
                 query.include('property');
                 const fullUser = await query.get(user.id);
-
                 this.user = fullUser;
 
-                console.log('Logged in user with property:', fullUser.get('property'));
+                console.log('Logged in user with property:', this.user.get('property'));
             } catch (err) {
                 this.error = err.message;
             } finally {

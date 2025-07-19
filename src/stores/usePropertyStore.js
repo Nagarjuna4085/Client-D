@@ -18,12 +18,12 @@ export const usePropertyStore = defineStore('property', {
                 const query = new Parse.Query(Property);
                 // Only fetch properties accessible to the user
                 const results = await query.find();
-                results.forEach((property) => {
-                    console.log('ID:', property.id);
-                    console.log('Name:', property.get('name'));
-                    // console.log('Location:', property.get('location'));
-                    console.log('Owner:', property.get('createdBy')?.id);
-                });
+                // results.forEach((property) => {
+                //     console.log('ID:', property.id);
+                //     console.log('Name:', property.get('name'));
+                //     // console.log('Location:', property.get('location'));
+                //     console.log('Owner:', property.get('createdBy')?.id);
+                // });
                 //
                 this.properties = results;
             } catch (err) {

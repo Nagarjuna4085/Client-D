@@ -4,8 +4,8 @@ import { useAuthStore } from '@/stores/useAuthStore'; // ✅ Import your Pinia s
 import { ref } from 'vue';
 import { useRouter } from 'vue-router'; // ✅ Router to navigate on success
 
-const email = ref('');
-const password = ref('');
+const email = ref('robot');
+const password = ref('robot');
 const checked = ref(false);
 const router = useRouter();
 const authStore = useAuthStore();

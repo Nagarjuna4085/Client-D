@@ -1,8 +1,11 @@
 <script setup>
-import { parseLocalDate, getCycleForDate } from '@/jsutils/timesheetUtils';
-import { onBeforeMount, onMounted, reactive, ref, watch } from 'vue';
+import { getCycleForDate, parseLocalDate } from '@/jsutils/timesheetUtils';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useTimesheetStore } from '@/stores/useTimesheetStore';
+import { onBeforeMount, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
+
+const timeSheetStore = useTimesheetStore();
 const route = useRoute();
 const timesheetId = route.params.id;
 const currentDate = ref(new Date());
@@ -35,13 +38,32 @@ function generateInitialEntries(start, days = 14) {
     return entries;
 }
 
+const objectId = ref();
+
 const timeEntries = reactive({
-    data: generateInitialEntries(currentCycle.value.start),
+    data: [],
     uniqId: 1024
 });
+const updateEntries = async () => {
+    // debugger;
+    console.log('seadwDWESF', timeEntries.data);
+    if (objectId.value) {
+        const result = await timeSheetStore.updateLogEntries(objectId.value, timeEntries.data);
+        console.log('result........................!!!!!!!!!!!!!!!', result);
+    }
+};
 
 onBeforeMount(() => {});
-onMounted(() => {});
+onMounted(async () => {
+    // debugger;
+    if (timesheetId && currentCycle.value.start && currentCycle.value.end) {
+        let result = await timeSheetStore.getOrCreateTimesheet(timesheetId, currentCycle.value.start, currentCycle.value.end);
+        console.log('...........', result);
+        objectId.value = result?.objectId;
+
+        timeEntries.data = result?.logEntries ? result?.logEntries : generateInitialEntries(currentCycle.value.start);
+    }
+});
 console.log('Load timesheet for ID:', timesheetId);
 
 const calculateDailyHours = (date) => {
@@ -134,7 +156,7 @@ const addNewEntry = (date, id) => {
     <div class="card">
         <!-- <div class="font-semibold text-xl mb-4 text-primary">Weekly Time Log</div> -->
         <div class="flex justify-between items-center mb-4">
-            <div class="font-bold text-4xl text-primary">Weekly Time Log</div>
+            <div class="font-bold text-4xl text-primary">Weekly Time Log <button @click="updateEntries">Save</button></div>
             <Button label="Clear All Times" icon="pi pi-times" @click="clearAllTimes" />
         </div>
         <div class="m-1">

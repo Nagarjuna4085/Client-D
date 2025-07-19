@@ -70,7 +70,8 @@ onMounted(async () => {
                 gender: e.get('gender'),
                 payType: e.get('payType'),
                 payRate: e.get('payRate'),
-                property: e.get('property')
+                property: e.get('property'),
+                empId: e.get('objectId')
             }));
         }
     } catch (error) {
@@ -269,7 +270,7 @@ const deleteSelectedProducts = () => {
                     <template #body="slotProps">
                         <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editProduct(slotProps.data)" />
                         <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteProduct(slotProps.data)" />
-                        <Button icon="pi pi-book" outlined rounded severity="danger" @click="fillTimeSheet('1')" />
+                        <Button icon="pi pi-book" outlined rounded severity="danger" @click="fillTimeSheet(slotProps.data.id)" />
                     </template>
                 </Column>
             </DataTable>
