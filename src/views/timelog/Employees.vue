@@ -1,4 +1,5 @@
 <script setup>
+import EmployeeTable from '@/components/skeletons/EmployeeTable.vue';
 import { getParse } from '@/parseConfig';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useEmployeeStore } from '@/stores/useEmployeeStore';
@@ -229,11 +230,14 @@ const deleteSelectedProducts = () => {
                 </template>
             </Toolbar>
 
+            <div v-if="isLoading">
+                <EmployeeTable />
+            </div>
             <DataTable
+                v-else
                 ref="dt"
                 v-model:selection="selectedProducts"
                 :value="products"
-                :loading="isLoading"
                 dataKey="id"
                 :paginator="true"
                 :rows="10"
