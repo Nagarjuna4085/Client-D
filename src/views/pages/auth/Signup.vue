@@ -126,8 +126,10 @@ const handSignUp = async () => {
                             <div class="flex items-center">
                                 <!-- <Checkbox v-model="checked" id="rememberme1" binary class="mr-2"></Checkbox>
                                 <label for="rememberme1">Remember me</label> -->
+                                <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary"><a href="/auth/login">Have an account? Log in</a></span>
                             </div>
-                            <Button label="click here for sign in" class="" as="router-link" to="/auth/login"></Button>
+
+                            <!-- <Button label="click here for sign in" class="" as="router-link" to="/auth/login"></Button> -->
                         </div>
 
                         <!-- <Button label="Sign In" class="w-full" as="router-link" to="/"></Button> -->

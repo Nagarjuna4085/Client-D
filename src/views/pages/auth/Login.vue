@@ -62,7 +62,8 @@ const handleLogin = async () => {
                             <div class="flex items-center">
                                 <!-- <Checkbox v-model="checked" id="rememberme1" binary class="mr-2"></Checkbox>
                                 <label for="rememberme1">Remember me</label> -->
-                                <Button label="Click here for sign up" class="text-warn" as="router-link" to="/auth/signup"></Button>
+                                <!-- <Button label="Click here for sign up" class="text-warn" as="router-link" to="/auth/signup"></Button> -->
+                                <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary"><a href="/auth/signup">Don’t have an account? Sign up</a></span>
                             </div>
                             <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>
                         </div>
