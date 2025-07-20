@@ -1,8 +1,18 @@
 <script setup>
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
 import { useAuthStore } from '@/stores/useAuthStore'; // ✅ Import your Pinia store
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router'; // ✅ Router to navigate on success
+onMounted(() => {
+    fetch('https://parseapi.back4app.com/classes/Employee', {
+        headers: {
+            'X-Parse-Application-Id': 'kokUdaUTVuQUSluDNbprmM7ZtS9YE98pQb6ZedVG',
+            'X-Parse-JavaScript-Key': 'z9LxYMEBTMPj0yzhIthcXPb8YGyeJL6hW7BvTkuL'
+        }
+    })
+        .then((r) => r.json())
+        .then(console.log);
+});
 const email = ref('robot');
 const password = ref('robot');
 const checked = ref(false);
