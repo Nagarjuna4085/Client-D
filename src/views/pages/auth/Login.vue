@@ -1,13 +1,9 @@
 <script setup>
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
-import { getParse } from '@/parseConfig';
 import { useAuthStore } from '@/stores/useAuthStore'; // ✅ Import your Pinia store
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router'; // ✅ Router to navigate on success
 onMounted(async () => {
-    const Parse = await getParse();
-    console.log('Parse SDK:', Parse);
-    console.log('Server URL:', Parse.serverURL);
     const appId = import.meta.env.VITE_PARSE_APP_ID;
     const jsKey = import.meta.env.VITE_PARSE_JS_KEY;
     const serverUrl = import.meta.env.VITE_PARSE_SERVER_URL;
