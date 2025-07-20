@@ -15,11 +15,15 @@ const handleLogin = async () => {
         alert('Please fill all required fields');
         return;
     }
-    const user = await authStore.login(email.value, password.value);
-    console.log('...........', user);
-    if (user) {
-        // console.log('property name', authStore.propertyInfo.name);
-        router.push('/'); // ✅ or whatever your next page is
+    try {
+        const user = await authStore.login(email.value, password.value);
+        console.log('...........', user);
+        if (user) {
+            // console.log('property name', authStore.propertyInfo.name);
+            router.push('/'); // ✅ or whatever your next page is
+        }
+    } catch (error) {
+        console.log(error);
     }
 };
 </script>
