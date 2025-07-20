@@ -11,13 +11,13 @@ const authStore = useAuthStore();
 // ✅ Handle login
 const handleLogin = async () => {
     console.log('login button clocked');
-    debugger;
     if (!email.value || !password.value) {
         alert('Please fill all required fields');
         return;
     }
-    await authStore.login(email.value, password.value);
-    if (authStore.user) {
+    const user = await authStore.login(email.value, password.value);
+    console.log('...........', user);
+    if (user) {
         // console.log('property name', authStore.propertyInfo.name);
         router.push('/'); // ✅ or whatever your next page is
     }
