@@ -49,6 +49,9 @@ export const useAuthStore = defineStore('auth', {
                 this.user = fullUser;
 
                 console.log('Logged in user with property:', this.user.get('property'));
+
+                // ✅ Add this line
+                return this.user;
             } catch (err) {
                 this.error = err.message;
             } finally {
