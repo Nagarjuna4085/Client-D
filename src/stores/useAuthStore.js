@@ -40,22 +40,32 @@ export const useAuthStore = defineStore('auth', {
         async login(username, password) {
             this.loading = true;
             this.error = null;
+
             try {
                 const Parse = await getParse();
+
+                // Step 1: Log in the user
                 const user = await Parse.User.logIn(username, password);
+                const sessionToken = user.getSessionToken();
+
+                // Step 2: Re-query the user with 'property' included
                 const query = new Parse.Query(Parse.User);
                 query.include('property');
-                const fullUser = await query.get(user.id);
-                this.user = fullUser;
+                query.equalTo('objectId', user.id);
+                const results = await query.find({ sessionToken });
 
-                console.log('Logged in user with property:', this.user.get('property'));
+                if (results.length > 0) {
+                    this.user = results[0];
+                    console.log('Logged in user with property:', this.user.get('property'));
+                } else {
+                    this.error = 'User not found.';
+                }
             } catch (err) {
                 this.error = err.message;
             } finally {
                 this.loading = false;
             }
         },
-
         async signup(username, password, propertyCode) {
             this.loading = true;
             this.error = null;

@@ -22,7 +22,7 @@ const router = createRouter({
                 {
                     path: '/timesheet/:id',
                     name: 'timesheet',
-                    component: () => import('@/views/timelog/Timesheet.vue'),
+                    component: () => import('@/views/timelog/TimeSheet.vue'),
                     props: true
                 },
                 {
@@ -152,8 +152,8 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
+    // debugger;
     const authStore = useAuthStore();
-    authStore.fetchCurrentUser(); // to update state on reload
 
     const publicPages = ['/auth/login', '/auth/access', '/auth/error', '/landing', '/auth/signup'];
     const authRequired = !publicPages.includes(to.path);
