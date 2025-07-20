@@ -4,6 +4,11 @@ import { useAuthStore } from '@/stores/useAuthStore'; // ✅ Import your Pinia s
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router'; // ✅ Router to navigate on success
 onMounted(() => {
+    const appId = import.meta.env.VITE_PARSE_APP_ID;
+    const jsKey = import.meta.env.VITE_PARSE_JS_KEY;
+    const serverUrl = import.meta.env.VITE_PARSE_SERVER_URL;
+    console.log(appId, jsKey, serverUrl);
+
     fetch('https://parseapi.back4app.com/classes/_User', {
         headers: {
             'X-Parse-Application-Id': import.meta.env.VITE_PARSE_APP_ID,

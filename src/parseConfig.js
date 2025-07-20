@@ -15,7 +15,7 @@ export async function getParse() {
         const appId = import.meta.env.VITE_PARSE_APP_ID;
         const jsKey = import.meta.env.VITE_PARSE_JS_KEY;
         const serverUrl = import.meta.env.VITE_PARSE_SERVER_URL;
-        console.log(appId,jsKey,serverUrl)
+        console.log(appId, jsKey, serverUrl);
 
         // Parse.initialize('kokUdaUTVuQUSluDNbprmM7ZtS9YE98pQb6ZedVG', 'z9LxYMEBTMPj0yzhIthcXPb8YGyeJL6hW7BvTkuL');
         // Parse.serverURL = 'https://parseapi.back4app.com';
