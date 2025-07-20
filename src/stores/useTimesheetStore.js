@@ -1,9 +1,6 @@
 // src/stores/useTimesheetStore.js
 import { getParse } from '@/parseConfig';
 import { defineStore } from 'pinia';
-const Parse = await getParse();
-
-const Timesheet = Parse.Object.extend('Timesheet');
 
 export const useTimesheetStore = defineStore('timesheet', {
     state: () => ({
@@ -18,6 +15,9 @@ export const useTimesheetStore = defineStore('timesheet', {
             this.error = null;
 
             try {
+                const Parse = await getParse();
+
+                const Timesheet = Parse.Object.extend('Timesheet');
                 const query = new Parse.Query(Timesheet);
                 query.equalTo('empId', empId);
                 query.equalTo('cycleStartDate', cycleStartDate);
@@ -53,6 +53,8 @@ export const useTimesheetStore = defineStore('timesheet', {
 
         async updateLogEntries(objectId, newEntries) {
             try {
+                const Parse = await getParse();
+
                 const Timesheet = Parse.Object.extend('Timesheet');
                 const query = new Parse.Query(Timesheet);
                 const sheet = await query.get(objectId);
