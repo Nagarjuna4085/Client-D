@@ -39,11 +39,14 @@ export const useAuthStore = defineStore('auth', {
 
     actions: {
         async login(username, password) {
+            debugger;
             this.loading = true;
             this.error = null;
             try {
                 const Parse = await getParse();
+                console.log('Parse', Parse);
                 const user = await Parse.User.logIn(username, password);
+                console.log('user...', user);
                 const query = new Parse.Query(Parse.User);
                 query.include('property');
                 const fullUser = await query.get(user.id);
