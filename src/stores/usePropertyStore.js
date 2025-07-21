@@ -1,5 +1,5 @@
-// import { getParse } from '@/parseConfig';
-import Parse from '../parseConfig'; // adjust path if needed
+import { getParse } from '@/parseConfig';
+// import Parse from '../parseConfig'; // adjust path if needed
 
 import { defineStore } from 'pinia';
 
@@ -15,7 +15,7 @@ export const usePropertyStore = defineStore('property', {
             this.loading = true;
             this.error = null;
             try {
-                // const Parse = await getParse();
+                const Parse = await getParse();
                 const Property = Parse.Object.extend('Property');
                 const query = new Parse.Query(Property);
                 // Only fetch properties accessible to the user

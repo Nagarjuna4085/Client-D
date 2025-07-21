@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
-import Parse from '../parseConfig'; // adjust path if needed
+// import Parse from '../parseConfig'; // adjust path if needed
+import { getParse } from '@/parseConfig';
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
@@ -41,7 +42,7 @@ export const useAuthStore = defineStore('auth', {
             this.loading = true;
             this.error = null;
             try {
-                // const Parse = await getParse();
+                const Parse = await getParse();
                 const user = await Parse.User.logIn(username, password);
                 const query = new Parse.Query(Parse.User);
                 query.include('property');
@@ -63,7 +64,7 @@ export const useAuthStore = defineStore('auth', {
             this.loading = true;
             this.error = null;
             try {
-                // const Parse = await getParse();
+                const Parse = await getParse();
 
                 const user = new Parse.User();
                 user.set('username', username);
@@ -91,7 +92,7 @@ export const useAuthStore = defineStore('auth', {
         async logout() {
             this.loading = true;
             try {
-                // const Parse = await getParse();
+                const Parse = await getParse();
                 await Parse.User.logOut();
                 this.user = null;
             } catch (err) {
@@ -101,7 +102,7 @@ export const useAuthStore = defineStore('auth', {
             }
         },
         async fetchCurrentUser() {
-            // const Parse = await getParse();
+            const Parse = await getParse();
             this.user = Parse.User.current();
         }
     }
