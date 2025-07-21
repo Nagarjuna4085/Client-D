@@ -8,25 +8,6 @@ onMounted(async () => {
     const jsKey = import.meta.env.VITE_PARSE_JS_KEY;
     const serverUrl = import.meta.env.VITE_PARSE_SERVER_URL;
     console.log(appId, jsKey, serverUrl);
-
-    fetch('https://parseapi.back4app.com/classes/_User', {
-        headers: {
-            'X-Parse-Application-Id': import.meta.env.VITE_PARSE_APP_ID,
-            'X-Parse-JavaScript-Key': import.meta.env.VITE_PARSE_JS_KEY
-        }
-    })
-        .then((res) => res.json())
-        .then(console.log)
-        .catch(console.error);
-
-    fetch('https://parseapi.back4app.com/classes/Employee', {
-        headers: {
-            'X-Parse-Application-Id': 'kokUdaUTVuQUSluDNbprmM7ZtS9YE98pQb6ZedVG',
-            'X-Parse-JavaScript-Key': 'z9LxYMEBTMPj0yzhIthcXPb8YGyeJL6hW7BvTkuL'
-        }
-    })
-        .then((r) => r.json())
-        .then(console.log);
 });
 const email = ref('robot');
 const password = ref('robot');
