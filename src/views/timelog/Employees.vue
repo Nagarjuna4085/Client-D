@@ -1,6 +1,5 @@
 <script setup>
 import EmployeeTable from '@/components/skeletons/EmployeeTable.vue';
-import { getParse } from '@/parseConfig';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useEmployeeStore } from '@/stores/useEmployeeStore';
 import { usePropertyStore } from '@/stores/usePropertyStore';
@@ -76,7 +75,7 @@ onMounted(async () => {
             }));
         }
     } catch (error) {
-        console.error('Error loading employees', err);
+        console.error('Error loading employees', error);
     } finally {
         isLoading.value = false;
     }
@@ -136,7 +135,6 @@ const hideDialog = () => {
 };
 const saveEmployee = async () => {
     submitted.value = true;
-    const Parse = await getParse();
 
     // Basic validation example:
     if (!product.value.firstName?.trim()) {
@@ -155,8 +153,8 @@ const saveEmployee = async () => {
         } else {
             // Create new employee
             // Assuming you have the logged-in user as pointer:
-            const currentUser = Parse.User.current();
-            await employeeStore.createEmployee(product.value, currentUser);
+            // const currentUser = Parse.User.current();
+            await employeeStore.createEmployee(product.value);
             products.value.push(product.value);
 
             toast.add({ severity: 'success', summary: 'Successful', detail: 'Employee Created', life: 3000 });

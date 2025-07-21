@@ -1,5 +1,7 @@
 // @/stores/useEmployeeStore.js
-import { getParse } from '@/parseConfig';
+// import { getParse } from '@/parseConfig';
+import Parse from '../parseConfig'; // adjust path if needed
+
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
@@ -22,7 +24,7 @@ export const useEmployeeStore = defineStore('employee', () => {
     async function fetchEmployees() {
         loading.value = true;
         try {
-            const Parse = await getParse();
+            // const Parse = await getParse();
             // const user = Parse.User.current();
 
             const currentUser = Parse.User.current();
@@ -53,9 +55,9 @@ export const useEmployeeStore = defineStore('employee', () => {
         }
     }
 
-    async function createEmployee(data, user) {
+    async function createEmployee(data) {
         try {
-            const Parse = await getParse();
+            // const Parse = await getParse();
 
             const Employee = Parse.Object.extend('Employee');
             const emp = new Employee();
@@ -76,7 +78,7 @@ export const useEmployeeStore = defineStore('employee', () => {
             if (!property) throw new Error('Property not found');
             emp.set('property', property);
 
-            emp.set('createBy', user);
+            emp.set('createBy', Parse.User.current());
 
             const saved = await emp.save();
             employees.value.push(saved);
@@ -91,7 +93,7 @@ export const useEmployeeStore = defineStore('employee', () => {
         try {
             console.log('id', id);
             console.log('updates', updates);
-            const Parse = await getParse();
+            // const Parse = await getParse();
 
             const query = new Parse.Query('Employee');
             const emp = await query.get(id);
@@ -124,7 +126,7 @@ export const useEmployeeStore = defineStore('employee', () => {
     }
 
     async function deleteEmployee(id) {
-        const Parse = await getParse();
+        // const Parse = await getParse();
         const query = new Parse.Query('Employee');
 
         try {

@@ -1,5 +1,7 @@
 // src/stores/useTimesheetStore.js
-import { getParse } from '@/parseConfig';
+// import { getParse } from '@/parseConfig';
+import Parse from '../parseConfig'; // adjust path if needed
+
 import { defineStore } from 'pinia';
 
 export const useTimesheetStore = defineStore('timesheet', {
@@ -15,7 +17,7 @@ export const useTimesheetStore = defineStore('timesheet', {
             this.error = null;
 
             try {
-                const Parse = await getParse();
+                // const Parse = await getParse();
 
                 const Timesheet = Parse.Object.extend('Timesheet');
                 const query = new Parse.Query(Timesheet);
@@ -53,7 +55,7 @@ export const useTimesheetStore = defineStore('timesheet', {
 
         async updateLogEntries(objectId, newEntries) {
             try {
-                const Parse = await getParse();
+                // const Parse = await getParse();
 
                 const Timesheet = Parse.Object.extend('Timesheet');
                 const query = new Parse.Query(Timesheet);
