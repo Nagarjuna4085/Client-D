@@ -6,7 +6,8 @@ export const useAuthStore = defineStore('auth', {
     state: () => ({
         user: null,
         loading: false,
-        error: null
+        error: null,
+        property: null // <-- add this to hold fetched property data
     }),
 
     getters: {
@@ -28,9 +29,9 @@ export const useAuthStore = defineStore('auth', {
             if (!property) return null;
 
             return {
-                id: property.id,
-                name: property.get('name'),
-                code: property.get('code'),
+                id: state.property.id,
+                name: state.property.get('name'),
+                code: state.property.get('code'),
                 initialCycleStartDate: property.get('initialCycleStartDate')
                 // add more property fields if needed
             };
@@ -48,13 +49,16 @@ export const useAuthStore = defineStore('auth', {
                 const user = await Parse.User.logIn(username, password);
                 console.log('user...', user);
                 const query = new Parse.Query(Parse.User);
-                query.include('property');
                 const fullUser = await query.get(user.id);
                 this.user = fullUser;
-
-                console.log('Logged in user with property:', this.user.get('property'));
-
-                // ✅ Add this line
+                // ✅ Fetch property using `pId` (string)
+                const pId = fullUser.get('pId');
+                if (pId) {
+                    const propQuery = new Parse.Query('Property');
+                    const property = await propQuery.get(pId);
+                    this.property = property;
+                    console.log('Fetched property via pId:', property);
+                }
                 return this.user;
             } catch (err) {
                 this.error = err.message;
@@ -77,14 +81,18 @@ export const useAuthStore = defineStore('auth', {
                 const query = new Parse.Query('Property');
                 query.equalTo('code', propertyCode);
                 const property = await query.first();
+                console.log('pId', property.Id);
 
                 if (!property) throw new Error('Selected property not found');
 
                 user.set('property', property);
+                user.set('pId', property.id);
 
                 await user.signUp();
                 this.user = user;
+                this.property = property;
                 console.log('User signed up successfully', this.user);
+                return true;
             } catch (err) {
                 this.error = err.message;
                 console.error('Signup error:', err);
