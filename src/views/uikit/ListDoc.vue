@@ -4,7 +4,12 @@ import { onMounted, ref, watch, reactive, nextTick } from 'vue';
 import { getCycleForDate, parseLocalDate } from '@/jsutils/timesheetUtils';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useTimesheetStore } from '@/stores/useTimesheetStore';
+import SkeletonTimeSheet from '@/components/skeletons/SkeletonTimeSheet.vue';
 const expandedRows = ref({});
+const isLoading = ref(true);
+const isDateChanged = ref(true);
+const timesheetId = route.params.id;
+
 const toast = useToast();
 const currentDate = ref(new Date());
 const timeSheetStore = useTimesheetStore();
@@ -28,9 +33,20 @@ watch(currentDate, (newDate) => {
 });
 
 onMounted(async () => {
-    timeEntries.data = await generateInitialEntries(currentCycle.value.start);
+    isLoading.value = true;
+
+    if (timesheetId && currentCycle.value.start && currentCycle.value.end) {
+        let result = await timeSheetStore.getOrCreateTimesheet(timesheetId, currentCycle.value.start, currentCycle.value.end);
+        console.log('...........', result);
+        objectId.value = result?.objectId;
+
+        timeEntries.data = result?.logEntries ? result?.logEntries?.timeEntries : generateInitialEntries(currentCycle.value.start);
+    }
+
+    // timeEntries.data = await generateInitialEntries(currentCycle.value.start);
     console.log('data', timeEntries.data);
     sortCustomersByDate();
+    isLoading.value = false;
 
     // Format the current date to match stored entry format
     const today = formatDateLocal(currentDate.value);
@@ -207,8 +223,10 @@ const clearEntry = (date, childId) => {
 
 <template>
     <div class="card">
-        <template> </template>
-        <DataTable v-model:expandedRows="expandedRows" :value="timeEntries.data" dataKey="id" @rowExpand="onRowExpand" @rowCollapse="onRowCollapse" tableStyle="min-width: 60rem">
+        <div v-if="isLoading">
+            <SkeletonTimeSheet />
+        </div>
+        <DataTable v-else v-model:expandedRows="expandedRows" :value="timeEntries.data" dataKey="id" @rowExpand="onRowExpand" @rowCollapse="onRowCollapse" tableStyle="min-width: 60rem">
             <template #header>
                 <div>
                     <div class="flex justify-between mb-4">
@@ -305,6 +323,11 @@ const clearEntry = (date, childId) => {
                         </Column>
                     </DataTable>
                 </div>
+            </template>
+
+            <template #empty>
+                <div v-if="isDateChanged"><SkeletonTimeSheet /></div>
+                <div v-else class="text-center text-gray-400 py-4">No entries available</div>
             </template>
         </DataTable>
 
