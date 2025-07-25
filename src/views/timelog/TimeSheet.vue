@@ -21,7 +21,8 @@ const objectId = ref();
 const disabledIds = [1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010, 1011, 1012, 1013, 1014];
 const timeEntries = reactive({
     data: [],
-    uniqId: 1024
+    uniqId: 1024,
+    grandTotal: null
 });
 const expandedRowRefs = ref({});
 const setExpandedRowRef = (id, el) => {
@@ -45,6 +46,7 @@ onMounted(async () => {
         objectId.value = result?.objectId;
 
         timeEntries.data = result?.logEntries?.length ? result?.logEntries : generateInitialEntries(currentCycle.value.start);
+        timeEntries.grandTotal = result?.grandTotal;
     }
 
     // timeEntries.data = await generateInitialEntries(currentCycle.value.start);
@@ -101,7 +103,8 @@ const generateInitialEntries = (start, days = 14) => {
         let day = {
             date: formatDateLocal(date), // store local YYYY-MM-DD string here
             timeEntries: [],
-            id: 10000 + i
+            id: 10000 + i,
+            dayTotal: null
         };
         date.setDate(start.getDate() + i);
         console.log('formatdate', formatDateLocal(date));
@@ -110,55 +113,137 @@ const generateInitialEntries = (start, days = 14) => {
             inTime: null,
             outTime: null,
             entryCount: `Entry 1`,
-            icon: 'pi pi-calendar'
+            icon: 'pi pi-calendar',
+            entryTolal: null
         });
         entries.push(day);
     }
     console.log('entries', entries);
     return entries;
 };
-const calculateDailyHours = (date) => {
-    const entries = timeEntries.data.filter((entry) => entry.date === date && entry.inTime && entry.outTime);
+// const calculateDailyHours = (parentId) => {
 
-    let totalMilliseconds = 0;
+//     const index = timeEntries.data.findIndex((entry) => entry.id === parentId);
 
-    entries.forEach((entry) => {
-        const inTime = new Date(entry.inTime);
-        const outTime = new Date(entry.outTime);
+//     if (index !== 1) {
+//         const entries = timeEntries.data[index].timeEntries;
+//         let totalMilliseconds = 0;
+//         entries.forEach((entry) => {
+//             const inTime = new Date(entry.inTime);
+//             const outTime = new Date(entry.outTime);
+//             const diffMilliseconds = outTime - inTime;
+//             if (diffMilliseconds > 0) {
+//                 totalMilliseconds += diffMilliseconds;
+//             }
+//         });
 
-        const diffMilliseconds = outTime - inTime;
-        if (diffMilliseconds > 0) {
-            totalMilliseconds += diffMilliseconds;
-        }
-    });
+//         const totalMinutes = Math.floor(totalMilliseconds / (1000 * 60));
+//         const hours = Math.floor(totalMinutes / 60);
+//         const minutes = totalMinutes % 60;
 
-    const totalMinutes = Math.floor(totalMilliseconds / (1000 * 60));
+//         return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+//     }
+// };
+const calculateSingleEntryHours = (entry) => {
+    if (!entry?.inTime || !entry?.outTime) return '00:00';
+
+    const inTime = new Date(entry.inTime);
+    const outTime = new Date(entry.outTime);
+    const diffMilliseconds = outTime - inTime;
+
+    if (diffMilliseconds <= 0) return '00:00';
+
+    const totalMinutes = Math.floor(diffMilliseconds / (1000 * 60));
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
 
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
 };
+const calculateDayTotal = (day) => {
+    let totalMinutes = 0;
 
-const calculateWeeklyHours = () => {
-    let totalMilliseconds = 0;
-
-    timeEntries.data.forEach((entry) => {
+    day.timeEntries.forEach((entry) => {
         if (entry.inTime && entry.outTime) {
             const inTime = new Date(entry.inTime);
             const outTime = new Date(entry.outTime);
+            const diff = outTime - inTime;
 
-            const diffMilliseconds = outTime - inTime;
-            if (diffMilliseconds > 0) {
-                totalMilliseconds += diffMilliseconds;
+            if (diff > 0) {
+                totalMinutes += Math.floor(diff / (1000 * 60));
             }
         }
     });
 
-    const totalMinutes = Math.floor(totalMilliseconds / (1000 * 60));
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
-
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+};
+
+// const calculateWeeklyHours = () => {
+//     let totalMilliseconds = 0;
+
+//     timeEntries.data.forEach((entry) => {
+//         if (entry.inTime && entry.outTime) {
+//             const inTime = new Date(entry.inTime);
+//             const outTime = new Date(entry.outTime);
+
+//             const diffMilliseconds = outTime - inTime;
+//             if (diffMilliseconds > 0) {
+//                 totalMilliseconds += diffMilliseconds;
+//             }
+//         }
+//     });
+
+//     const totalMinutes = Math.floor(totalMilliseconds / (1000 * 60));
+//     const hours = Math.floor(totalMinutes / 60);
+//     const minutes = totalMinutes % 60;
+
+//     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+// };
+
+const calculateGrandTotal = () => {
+    let totalMinutes = 0;
+
+    timeEntries.data.forEach((day) => {
+        day.timeEntries.forEach((entry) => {
+            if (entry.inTime && entry.outTime) {
+                const inTime = new Date(entry.inTime);
+                const outTime = new Date(entry.outTime);
+                const diff = outTime - inTime;
+
+                if (diff > 0) {
+                    totalMinutes += Math.floor(diff / (1000 * 60));
+                }
+            }
+        });
+    });
+
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+};
+
+const findIndexes = (parentId, childId) => {
+    const parentIndex = timeEntries.data.findIndex((p) => p.id === parentId);
+    const childIndex = parentIndex !== -1 ? timeEntries.data[parentIndex].timeEntries.findIndex((c) => c.id === childId) : -1;
+    return [parentIndex, childIndex];
+};
+
+const handleTimeChange = (entry, parentId) => {
+    const [parentIndex, childIndex] = findIndexes(parentId, entry.id);
+    console.log(parentIndex, childIndex);
+    if (parentIndex !== -1 && childIndex !== -1) {
+        let entrySum = calculateSingleEntryHours(entry);
+        let dailySum = calculateDayTotal(timeEntries.data[parentIndex]);
+        let grandSum = calculateGrandTotal();
+        console.log('entrySum', entrySum);
+        console.log('dailySum', dailySum);
+        console.log('grandSum', grandSum);
+        timeEntries.data[parentIndex].timeEntries[childIndex].entryTolal = entrySum;
+        timeEntries.data[parentIndex].dayTotal = dailySum;
+        timeEntries.grandTotal = grandSum;
+        console.log(timeEntries.data[parentIndex].timeEntries[childIndex].entryTolal);
+    }
 };
 
 const sortCustomersByDate = () => {
@@ -203,7 +288,8 @@ const addNewEntry = (date, id) => {
             inTime: null,
             outTime: null,
             entryCount: `Entry ${totalEntries + 1}`,
-            icon: 'pi pi-calendar'
+            icon: 'pi pi-calendar',
+            entryTolal: null
         });
     }
 
@@ -227,7 +313,7 @@ const updateEntries = async () => {
     // debugger;
     console.log('seadwDWESF', timeEntries.data);
     if (objectId.value) {
-        const result = await timeSheetStore.updateLogEntries(objectId.value, timeEntries.data);
+        const result = await timeSheetStore.updateLogEntries(objectId.value, timeEntries.data, timeEntries.grandTotal);
         console.log('result........................!!!!!!!!!!!!!!!', result);
     }
 };
@@ -254,7 +340,7 @@ const updateEntries = async () => {
                             <Button text icon="pi pi-times" label="Clear All Times" raised @click="clearAllTimesForAllDates" />
                         </div>
                         <div class="flex">
-                            <Button disabled="true" label="Total Hours" badge="88:88" icon="pi pi-clock" severity="info" variant="text" raised />
+                            <Button disabled="true" label="Total Hours" :badge="timeEntries.grandTotal" icon="pi pi-clock" severity="info" variant="text" raised />
                             <Button text icon="pi pi-check" class="" label="Submit" @click="updateEntries" raised />
                         </div>
                     </div>
@@ -295,21 +381,37 @@ const updateEntries = async () => {
                     <DataTable :value="slotProps.data.timeEntries">
                         <Column field="entryCount" header="S.NO"></Column>
                         <Column field="" header="In">
-                            <template #body="slotProps">
+                            <template #body="childSlot">
                                 <div class="flex items-center gap-2">
                                     <FloatLabel>
-                                        <Calendar v-model="slotProps.data.inTime" showIcon hourFormat="12" iconDisplay="input" timeOnly :inputId="`inTime-${slotProps.data.id}`" />
-                                        <label :for="`inTime-${slotProps.data.id}`">In Time</label>
+                                        <Calendar
+                                            v-model="childSlot.data.inTime"
+                                            showIcon
+                                            hourFormat="12"
+                                            iconDisplay="input"
+                                            timeOnly
+                                            :inputId="`inTime-${childSlot.data.id}`"
+                                            @update:modelValue="() => handleTimeChange(childSlot.data, slotProps.data.id)"
+                                        />
+                                        <label :for="`inTime-${childSlot.data.id}`">In Time</label>
                                     </FloatLabel>
                                 </div>
                             </template>
                         </Column>
                         <Column field="outTime" header="Out">
-                            <template #body="slotProps">
+                            <template #body="childSlot">
                                 <div class="flex items-center gap-2">
                                     <FloatLabel>
-                                        <Calendar v-model="slotProps.data.outTime" showIcon hourFormat="12" iconDisplay="input" timeOnly :inputId="`outTime-${slotProps.data.id}`" />
-                                        <label :for="`outTime-${slotProps.data.id}`">Out Time</label>
+                                        <Calendar
+                                            v-model="childSlot.data.outTime"
+                                            showIcon
+                                            hourFormat="12"
+                                            iconDisplay="input"
+                                            timeOnly
+                                            :inputId="`outTime-${childSlot.data.id}`"
+                                            @update:modelValue="() => handleTimeChange(childSlot.data, slotProps.data.id)"
+                                        />
+                                        <label :for="`outTime-${childSlot.data.id}`">Out Time</label>
                                     </FloatLabel>
                                 </div>
                             </template>
@@ -329,8 +431,8 @@ const updateEntries = async () => {
                             </template>
                         </Column>
                         <Column headerStyle="width:4rem" header="Hours">
-                            <template #body>
-                                <Button icon="pi pi-clock" label="00:00" severity="info" text raised />
+                            <template #body="childProps">
+                                <Button icon="pi pi-clock" :label="childProps.data.entryTolal" severity="info" text raised />
                             </template>
                         </Column>
                     </DataTable>

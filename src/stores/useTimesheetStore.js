@@ -34,15 +34,18 @@ export const useTimesheetStore = defineStore('timesheet', {
                     timesheet.set('cycleEndDate', cycleEndDate);
                     // timesheet.set('logEntries', []); // initialize empty log
                     const result = await timesheet.save();
+                    console(timesheet.get('grandTotal'));
                     console.log('result', result);
                     return {
                         status: false,
-                        objectId: result.id
+                        objectId: result.id,
+                        grandTotal: timesheet.get('grandTotal')
                     };
                 } else {
                     return {
                         objectId: timesheet.id,
-                        logEntries: timesheet.get('logEntries')
+                        logEntries: timesheet.get('logEntries'),
+                        grandTotal: timesheet.get('grandTotal')
                     };
                 }
             } catch (err) {
@@ -53,8 +56,10 @@ export const useTimesheetStore = defineStore('timesheet', {
             }
         },
 
-        async updateLogEntries(objectId, newEntries) {
+        async updateLogEntries(objectId, newEntries, grandTotalHours) {
+            console.log(objectId, newEntries, grandTotalHours);
             try {
+                debugger;
                 const Parse = await getParse();
 
                 const Timesheet = Parse.Object.extend('Timesheet');
@@ -62,6 +67,8 @@ export const useTimesheetStore = defineStore('timesheet', {
                 const sheet = await query.get(objectId);
 
                 sheet.set('logEntries', newEntries);
+                sheet.set('grandTotal', grandTotalHours);
+                console.log(sheet.get('grandTotal'));
                 await sheet.save();
 
                 return sheet;
