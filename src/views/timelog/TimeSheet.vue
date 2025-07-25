@@ -4,6 +4,9 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useToast } from 'primevue/usetoast';
 import { nextTick, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import { useRouter } from 'vue-router'; // ✅ Router to navigate on success
+const router = useRouter();
+
 const route = useRoute();
 
 import SkeletonTimeSheet from '@/components/skeletons/SkeletonTimeSheet.vue';
@@ -314,6 +317,9 @@ const updateEntries = async () => {
     console.log('seadwDWESF', timeEntries.data);
     if (objectId.value) {
         const result = await timeSheetStore.updateLogEntries(objectId.value, timeEntries.data, timeEntries.grandTotal);
+        toast.add({ severity: 'success', summary: 'Timesheet', detail: 'Timsheet updated', life: 3000 });
+
+        router.push('/timelog/employees');
         console.log('result........................!!!!!!!!!!!!!!!', result);
     }
 };
