@@ -21,32 +21,29 @@ export const useEmployeeStore = defineStore('employee', () => {
 
     // ✅ Actions
     async function fetchEmployees() {
+        debugger;
         loading.value = true;
         try {
             const Parse = await getParse();
             // const user = Parse.User.current();
 
             const currentUser = Parse.User.current();
-            console.log('User property:', currentUser.get('property'));
+            // console.log('User property:', currentUser.get('property'));
+            const propertyId = currentUser.get('pId');
+            console.log('User property IDDD:', propertyId);
 
-            const propertyObj = currentUser.get('property');
-            if (!propertyObj) {
-                console.warn('No property found for current user');
+            if (!propertyId) {
+                console.warn('No property ID found for current user');
                 employees.value = [];
                 return;
             }
-            const propertyPointer = propertyObj instanceof Parse.Object ? propertyObj : new Parse.Object('Property');
-            if (!(propertyObj instanceof Parse.Object)) {
-                propertyPointer.id = propertyObj.objectId || propertyObj.id;
-            }
-
             const query = new Parse.Query('Employee');
-            query.equalTo('property', propertyObj); // filter by property
-
-            query.include('property');
+            query.equalTo('pId', propertyId); // match by propertyId string field
             query.include('createBy');
             const results = await query.find();
+            console.log('results', results);
             employees.value = results;
+            return results;
         } catch (err) {
             console.error('Error fetching employees:', err.message);
         } finally {

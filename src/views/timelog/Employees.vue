@@ -28,6 +28,7 @@ const authStore = useAuthStore();
 console.log(authStore);
 const propertyStore = usePropertyStore();
 onMounted(async () => {
+    debugger;
     isLoading.value = true;
 
     // products.value = [
@@ -57,7 +58,8 @@ onMounted(async () => {
     // 2. Fetch employee data
     try {
         isLoading.value = true;
-        await employeeStore.fetchEmployees();
+        const emps = await employeeStore.fetchEmployees();
+        console.log('empssss', emps);
 
         // 3. Map employee data to the products array
         if (Array.isArray(employeeStore.employees)) {
