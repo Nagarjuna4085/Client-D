@@ -47,7 +47,7 @@ const toggle = (event) => {
                     </g>
                 </svg>
 
-                <span>SAKAI</span>
+                <span>B R D</span>
             </router-link>
         </div>
 
