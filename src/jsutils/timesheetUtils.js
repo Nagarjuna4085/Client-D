@@ -53,7 +53,7 @@ function getPreviousCycle(currentCycle) {
  * @returns {{ start: Date, end: Date }}
  */
 function getCycleForDate(inputDate, rawStartDate) {
-    // debugger;
+    debugger;
     console.log(inputDate, rawStartDate);
     // Make sure both dates are at 00:00:00 time to avoid time issues
     const startDate = new Date(rawStartDate);
@@ -73,5 +73,16 @@ function getCycleForDate(inputDate, rawStartDate) {
         end: cycleEnd
     };
 }
+function calculateTotalSalary(grandTotal, payRate) {
+    debugger;
+    const [hoursStr, minutesStr] = grandTotal.split(':');
+    console.log(hoursStr, minutesStr);
+    const hours = parseInt(hoursStr, 10);
+    const minutes = parseInt(minutesStr, 10);
+    const totalHours = hours + minutes / 60;
 
-export { getCycleForDate, getCurrentCycle, getNextCycle, getPreviousCycle, initialCycleStartDate, parseLocalDate, parseLocalDateFromUTC };
+    const salary = totalHours * payRate;
+    return Number(salary.toFixed(2)); // Convert to number with 2 decimal points
+}
+
+export { calculateTotalSalary, getCurrentCycle, getCycleForDate, getNextCycle, getPreviousCycle, initialCycleStartDate, parseLocalDate, parseLocalDateFromUTC };

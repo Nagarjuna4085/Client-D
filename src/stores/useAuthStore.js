@@ -24,17 +24,7 @@ export const useAuthStore = defineStore('auth', {
         },
 
         propertyInfo(state) {
-            if (!state.user) return null;
-            const property = state.user.get('property');
-            if (!property) return null;
-
-            return {
-                id: state.property.id,
-                name: state.property.get('name'),
-                code: state.property.get('code'),
-                initialCycleStartDate: property.get('initialCycleStartDate')
-                // add more property fields if needed
-            };
+            return state.property;
         }
     },
 
@@ -52,12 +42,20 @@ export const useAuthStore = defineStore('auth', {
                 const fullUser = await query.get(user.id);
                 this.user = fullUser;
                 // ✅ Fetch property using `pId` (string)
-                const pId = fullUser.get('pId');
+                const pId = user.get('pId');
+                console.log('pid...', pId);
                 if (pId) {
                     const propQuery = new Parse.Query('Property');
-                    const property = await propQuery.get(pId);
-                    this.property = property;
-                    console.log('Fetched property via pId:', property);
+                    // const property = await propQuery.get(pId);
+                    propQuery.equalTo('objectId', pId);
+                    let result = await propQuery.find();
+                    this.property = {
+                        id: result[0].id,
+                        name: result[0].get('name'),
+                        code: result[0].get('code'),
+                        initialCycleStartDate: result[0].get('initialCycleStartDate')
+                    };
+                    console.log('Fetched property via pId:', result[0].get('name'));
                 }
                 return this.user;
             } catch (err) {

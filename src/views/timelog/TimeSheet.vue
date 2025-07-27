@@ -3,8 +3,7 @@ import { getCycleForDate, parseLocalDate } from '@/jsutils/timesheetUtils';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useToast } from 'primevue/usetoast';
 import { nextTick, onMounted, reactive, ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
-import { useRouter } from 'vue-router'; // ✅ Router to navigate on success
+import { useRoute, useRouter } from 'vue-router';
 const router = useRouter();
 
 const route = useRoute();
@@ -20,6 +19,7 @@ const toast = useToast();
 const currentDate = ref(new Date());
 const timeSheetStore = useTimesheetStore();
 const authStore = useAuthStore();
+console.log('authStore..................', authStore?.propertyInfo);
 const objectId = ref();
 const disabledIds = [1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010, 1011, 1012, 1013, 1014];
 const timeEntries = reactive({
@@ -35,6 +35,7 @@ const setExpandedRowRef = (id, el) => {
 };
 
 const currentCycle = ref(getCycleForDate(currentDate.value, authStore?.propertyInfo?.initialCycleStartDate));
+console.log('currentCycle,cu', currentCycle);
 watch(currentDate, (newDate) => {
     currentCycle.value = getCycleForDate(newDate, authStore?.propertyInfo?.initialCycleStartDate);
 });
@@ -316,7 +317,7 @@ const updateEntries = async () => {
     // debugger;
     console.log('seadwDWESF', timeEntries.data);
     if (objectId.value) {
-        const result = await timeSheetStore.updateLogEntries(objectId.value, timeEntries.data, timeEntries.grandTotal);
+        const result = await timeSheetStore.updateLogEntries(objectId.value, timeEntries.data, timeEntries.grandTotal, timesheetId);
         toast.add({ severity: 'success', summary: 'Timesheet', detail: 'Timsheet updated', life: 3000 });
 
         router.push('/timelog/employees');
